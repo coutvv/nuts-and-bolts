@@ -2,6 +2,7 @@ package ru.hh.nab.common.executor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.hh.metrics.Max;
 import ru.hh.metrics.StatsDSender;
 import ru.hh.nab.common.properties.FileSettings;
 
@@ -16,19 +17,26 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static java.util.Optional.ofNullable;
 
-public class MonitoringThreadPoolExecutor implements Executor {
-  private final static Logger LOGGER = LoggerFactory.getLogger(MonitoringThreadPoolExecutor.class);
+public class MonitoredThreadPoolExecutor implements Executor {
+  private final static Logger LOGGER = LoggerFactory.getLogger(MonitoredThreadPoolExecutor.class);
 
   private final ThreadPoolExecutor delegate;
   private final String threadPoolName;
+  private final Max poolSizeMax;
+  private final Max activeCountMax;
+  private final Max queueSizeMax;
 
-  public MonitoringThreadPoolExecutor(String threadPoolName, String serviceName, FileSettings threadPoolSettings, StatsDSender statsDSender) {
+  public MonitoredThreadPoolExecutor(String threadPoolName, String serviceName, FileSettings threadPoolSettings, StatsDSender statsDSender) {
     this.threadPoolName = threadPoolName;
     this.delegate = createThreadPoolExecutor(threadPoolSettings);
 
-    statsDSender.sendMetricPeriodically(getFullMetricName(serviceName, "size"), () -> (long) delegate.getPoolSize());
-    statsDSender.sendMetricPeriodically(getFullMetricName(serviceName, "activeCount"), () -> (long) delegate.getActiveCount());
-    statsDSender.sendMetricPeriodically(getFullMetricName(serviceName, "queueSize"), () -> (long) delegate.getQueue().size());
+    this.poolSizeMax = new Max(0);
+    this.activeCountMax = new Max(0);
+    this.queueSizeMax = new Max(0);
+
+    statsDSender.sendMaxPeriodically(getFullMetricName(serviceName, "size"), poolSizeMax);
+    statsDSender.sendMaxPeriodically(getFullMetricName(serviceName, "activeCount"), activeCountMax);
+    statsDSender.sendMaxPeriodically(getFullMetricName(serviceName, "queueSize"), queueSizeMax);
   }
 
   @Override
@@ -43,6 +51,10 @@ public class MonitoringThreadPoolExecutor implements Executor {
     var threadFactory = new ThreadFactory() {
       @Override
       public Thread newThread(Runnable r) {
+        poolSizeMax.save(delegate.getPoolSize());
+        activeCountMax.save(delegate.getActiveCount());
+        queueSizeMax.save(delegate.getQueue().size());
+
         Thread thread = defaultThreadFactory.newThread(r);
         thread.setName(threadPoolName + String.format("-monitored-pool-thread-%s", count.getAndIncrement()));
         thread.setDaemon(true);
