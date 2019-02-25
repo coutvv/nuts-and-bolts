@@ -31,12 +31,22 @@ public abstract class NabLoggingConfiguratorTemplate extends BasicConfigurator {
       return super.add(name);
     }
   };
+  private List<String> loggerScopes = new ArrayList<>() {
+    @Override
+    public boolean add(String name) {
+      if (contains(name)) {
+        throw new AssertionError("Logger targeted to " + name + " already configured");
+      }
+      return super.add(name);
+    }
+  };
 
   @Override
   public final void configure(LoggerContext lc) {
     Properties properties = createLoggingProperties();
     configure(new LoggingContextWrapper(lc, properties));
     appenderNames = null;
+    loggerScopes = null;
   }
 
   protected abstract Properties createLoggingProperties();
@@ -89,6 +99,7 @@ public abstract class NabLoggingConfiguratorTemplate extends BasicConfigurator {
 
   protected LoggerWrapper createLogger(LoggingContextWrapper context, String name, Level level, boolean additivity,
       Collection<Appender> appenders) {
+    loggerScopes.add(name);
     var logger = context.getContext().getLogger(name);
     logger.setLevel(ch.qos.logback.classic.Level.toLevel(level.toString()));
     logger.setAdditive(additivity);
