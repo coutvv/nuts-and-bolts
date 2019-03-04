@@ -295,9 +295,7 @@ public class HhRollingAppender extends RollingFileAppender<ILoggingEvent> {
       encoder.start();
     }
 
-    if (encoder instanceof LayoutWrappingEncoder) {
-      ((LayoutWrappingEncoder<?>)encoder).setImmediateFlush(immediateFlush);
-    }
+    setImmediateFlush(immediateFlush);
 
     if (collectPackagingInfo != null) {
       ((LoggerContext) context).setPackagingDataEnabled(collectPackagingInfo);
