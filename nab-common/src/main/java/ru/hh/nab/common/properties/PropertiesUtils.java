@@ -11,6 +11,8 @@ public class PropertiesUtils {
   public static final String SETINGS_DIR_PROPERTY = "settingsDir";
   static final String DEFAULT_DEV_FILE_EXT = ".dev";
 
+  private PropertiesUtils() {}
+
   public static Properties fromFilesInSettingsDir(String fileName) throws IOException {
     return fromFilesInSettingsDir(fileName, fileName + DEFAULT_DEV_FILE_EXT);
   }
