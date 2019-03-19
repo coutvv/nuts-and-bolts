@@ -1,15 +1,18 @@
 package ru.hh.nab.starter.server.jetty;
 
-import java.time.Duration;
-import static java.util.Optional.ofNullable;
-import static ru.hh.nab.starter.server.jetty.JettyServer.JETTY;
-
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.BlockingArrayQueue;
 import org.eclipse.jetty.util.thread.ThreadPool;
+import org.eclipse.jetty.webapp.WebAppContext;
 import ru.hh.nab.common.properties.FileSettings;
 import ru.hh.nab.metrics.StatsDSender;
 import ru.hh.nab.starter.servlet.WebAppInitializer;
+
+import java.time.Duration;
+
+import static java.util.Optional.ofNullable;
+import static org.eclipse.jetty.servlet.ServletContextHandler.SESSIONS;
+import static ru.hh.nab.starter.server.jetty.JettyServer.JETTY;
 
 public final class JettyServerFactory {
 
@@ -23,7 +26,12 @@ public final class JettyServerFactory {
 
   private static ServletContextHandler createWebAppContextHandler(FileSettings jettySettings, WebAppInitializer webAppInitializer) {
     boolean sessionEnabled = ofNullable(jettySettings.getBoolean("session-manager.enabled")).orElse(Boolean.FALSE);
-    return new JettyWebAppContext(webAppInitializer, sessionEnabled);
+    WebAppContext webAppContext = new WebAppContext(
+      null, null, null, null, null, null, sessionEnabled ? SESSIONS : 0
+    );
+    webAppInitializer.configureWebApp(webAppContext);
+    webAppContext.setThrowUnavailableOnStartupException(true);
+    return webAppContext;
   }
 
   public static MonitoredQueuedThreadPool createJettyThreadPool(FileSettings jettySettings,
