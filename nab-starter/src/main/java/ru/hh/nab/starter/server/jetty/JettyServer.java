@@ -41,7 +41,7 @@ public final class JettyServer {
     server.setHandler(servletContextHandler);
   }
 
-  public void start() throws JettyServerException {
+  public void start() {
     try {
       server.start();
       server.setStopAtShutdown(true);
@@ -54,7 +54,7 @@ public final class JettyServer {
     }
   }
 
-  public void stop() throws JettyServerException {
+  public void stop() {
     try {
       server.stop();
     } catch (Exception e) {
@@ -64,7 +64,7 @@ public final class JettyServer {
 
   public int getPort() {
     Optional<ServerConnector> serverConnector = getServerConnector();
-    if (!serverConnector.isPresent()) {
+    if (serverConnector.isEmpty()) {
       LOGGER.warn("Unable to obtain port number - server connector is not present");
       return 0;
     }
@@ -105,7 +105,6 @@ public final class JettyServer {
     httpConfiguration.setRequestHeaderSize(16384);
     httpConfiguration.setResponseHeaderSize(65536);
     httpConfiguration.setSendServerVersion(false);
-    httpConfiguration.setBlockingTimeout(5000);
     return new HttpConnectionFactory(httpConfiguration);
   }
 
