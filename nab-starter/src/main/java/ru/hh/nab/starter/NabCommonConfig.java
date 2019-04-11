@@ -1,7 +1,5 @@
 package ru.hh.nab.starter;
 
-import static java.util.Optional.ofNullable;
-
 import java.util.Properties;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -11,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import ru.hh.nab.common.executor.ScheduledExecutor;
-import ru.hh.nab.common.properties.FileSettings;
+import ru.hh.nab.common.settings.NabSettings;
 import ru.hh.nab.metrics.StatsDSender;
 import ru.hh.nab.starter.metrics.JvmMetricsSender;
 import ru.hh.nab.starter.server.jetty.MonitoredQueuedThreadPool;
@@ -23,19 +21,14 @@ public class NabCommonConfig {
   static final String SERVICE_NAME_PROPERTY = "serviceName";
 
   @Bean
-  String serviceName(FileSettings fileSettings) {
-    return ofNullable(fileSettings.getString(SERVICE_NAME_PROPERTY))
-        .orElseThrow(() -> new RuntimeException(String.format("'%s' property is not found in file settings", SERVICE_NAME_PROPERTY)));
+  String serviceName(NabSettings nabSettings) {
+    return nabSettings.getString(SERVICE_NAME_PROPERTY)
+      .orElseThrow(() -> new RuntimeException(String.format("'%s' property is not found in file settings", SERVICE_NAME_PROPERTY)));
   }
 
   @Bean
-  MonitoredQueuedThreadPool jettyThreadPool(FileSettings fileSettings, String serviceName, StatsDSender statsDSender) throws Exception {
-    return createJettyThreadPool(fileSettings.getSubSettings("jetty"), serviceName, statsDSender);
-  }
-
-  @Bean
-  FileSettings fileSettings(Properties serviceProperties) {
-    return new FileSettings(serviceProperties);
+  MonitoredQueuedThreadPool jettyThreadPool(NabSettings nabSettings, String serviceName, StatsDSender statsDSender) throws Exception {
+    return createJettyThreadPool(nabSettings.getSubSettings("jetty"), serviceName, statsDSender);
   }
 
   @Bean
@@ -45,11 +38,12 @@ public class NabCommonConfig {
 
   @Bean
   StatsDSender statsDSender(ScheduledExecutorService scheduledExecutorService, StatsDClient statsDClient, String serviceName,
-                            FileSettings fileSettings) {
+                            NabSettings nabSettings) {
     StatsDSender statsDSender = new StatsDSender(statsDClient, scheduledExecutorService);
-    if (Boolean.TRUE.equals(fileSettings.getBoolean("metrics.jvm.enabled"))) {
-      JvmMetricsSender.create(statsDSender, serviceName);
-    }
+
+    nabSettings.getBoolean("metrics.jvm.enabled").filter(Boolean::booleanValue)
+      .ifPresent(b -> JvmMetricsSender.create(statsDSender, serviceName));
+
     return statsDSender;
   }
 

@@ -4,7 +4,6 @@ import static java.text.MessageFormat.format;
 import static ru.hh.nab.starter.server.jetty.JettyServer.JETTY_PORT;
 
 import io.sentry.Sentry;
-import java.util.Properties;
 import java.util.function.Function;
 import javax.servlet.ServletContextEvent;
 import org.eclipse.jetty.util.thread.ThreadPool;
@@ -18,10 +17,11 @@ import org.springframework.web.context.ContextLoader;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
-import ru.hh.nab.common.properties.FileSettings;
 
 import java.lang.management.ManagementFactory;
 import java.time.LocalDateTime;
+
+import ru.hh.nab.common.settings.NabSettings;
 import ru.hh.nab.starter.server.jetty.JettyServer;
 import ru.hh.nab.starter.server.jetty.JettyServerFactory;
 import ru.hh.nab.starter.servlet.WebAppInitializer;
@@ -55,8 +55,6 @@ public final class NabApplication {
     return run(baseContext, false, serverCreateFunction -> serverCreateFunction.apply(null));
   }
 
-
-
   /**
    *
    * @param directlyUseAsWebAppRoot if this context used directly it gets no initialization by initializing listener
@@ -68,17 +66,15 @@ public final class NabApplication {
     try {
       configureLogger();
       configureSentry(baseContext);
-      FileSettings fileSettings = baseContext.getBean(FileSettings.class);
+      NabSettings nabSettings = baseContext.getBean(NabSettings.class);
       ThreadPool threadPool = baseContext.getBean(ThreadPool.class);
       WebAppInitializer webAppInitializer = createWebAppInitializer(servletContextConfig, baseContext, directlyUseAsWebAppRoot);
       JettyServer jettyServer = serverStarter.apply(port -> {
-        FileSettings effectiveSettings = fileSettings;
+        NabSettings finalNabSettings = nabSettings;
         if (port != null) {
-          Properties properties = fileSettings.getProperties();
-          properties.setProperty(JETTY_PORT, String.valueOf(port));
-          effectiveSettings = new FileSettings(properties);
+          finalNabSettings = finalNabSettings.withProperty(JETTY_PORT, port);
         }
-        JettyServer server = JettyServerFactory.create(effectiveSettings, threadPool, webAppInitializer);
+        JettyServer server = JettyServerFactory.create(finalNabSettings, threadPool, webAppInitializer);
         server.start();
         return server;
       });
@@ -99,8 +95,8 @@ public final class NabApplication {
   }
 
   public static void configureSentry(ApplicationContext context) {
-    FileSettings settings = context.getBean(FileSettings.class);
-    Sentry.init(settings.getString("sentry.dsn"));
+    NabSettings settings = context.getBean(NabSettings.class);
+    Sentry.init(settings.getString("sentry.dsn").orElse(null));
   }
 
   private static void logStartupInfo(ApplicationContext context) {

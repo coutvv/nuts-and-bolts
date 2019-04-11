@@ -1,6 +1,6 @@
 package ru.hh.nab.datasource.monitoring;
 
-import ru.hh.nab.common.properties.FileSettings;
+import ru.hh.nab.common.settings.NabSettings;
 import ru.hh.nab.datasource.monitoring.stack.CompressedStackFactoryConfig;
 import ru.hh.nab.metrics.StatsDSender;
 
@@ -20,7 +20,7 @@ public class NabMetricsTrackerFactoryProvider implements MetricsTrackerFactoryPr
   }
 
   @Override
-  public NabMetricsTrackerFactory create(FileSettings dataSourceSettings) {
+  public NabMetricsTrackerFactory create(NabSettings dataSourceSettings) {
     return new NabMetricsTrackerFactory(serviceName, statsDSender, compressedStackFactoryConfig, dataSourceSettings);
   }
 }

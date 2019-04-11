@@ -2,18 +2,15 @@ package ru.hh.nab.starter;
 
 import com.timgroup.statsd.NonBlockingStatsDClient;
 import com.timgroup.statsd.StatsDClient;
-import static java.util.Optional.ofNullable;
 
-import java.io.IOException;
-import java.util.Properties;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import ru.hh.nab.common.properties.FileSettings;
+import ru.hh.nab.common.settings.NabSettings;
+import ru.hh.nab.common.settings.TypesafeConfigLoader;
 import ru.hh.nab.metrics.StatsDSender;
 
-import static ru.hh.nab.common.properties.PropertiesUtils.fromFilesInSettingsDir;
 import static ru.hh.nab.starter.server.cache.HttpCacheFilterFactory.createCacheFilterHolder;
 
 @Configuration
@@ -23,14 +20,14 @@ public class NabProdConfig {
   static final String DATACENTER_NAME_PROPERTY = "datacenter";
 
   @Bean
-  Properties serviceProperties() throws IOException {
-    return fromFilesInSettingsDir(PROPERTIES_FILE_NAME);
+  NabSettings nabSettings() {
+    return new NabSettings(TypesafeConfigLoader.fromConfig(PROPERTIES_FILE_NAME));
   }
 
   @Bean
-  String datacenter(FileSettings fileSettings) {
-    return ofNullable(fileSettings.getString(DATACENTER_NAME_PROPERTY))
-        .orElseThrow(() -> new RuntimeException(String.format("'%s' property is not found in file settings", DATACENTER_NAME_PROPERTY)));
+  String datacenter(NabSettings fileSettings) {
+    return fileSettings.getString(DATACENTER_NAME_PROPERTY)
+      .orElseThrow(() -> new RuntimeException(String.format("'%s' property is not found in file settings", DATACENTER_NAME_PROPERTY)));
   }
 
   @Bean
@@ -39,7 +36,7 @@ public class NabProdConfig {
   }
 
   @Bean
-  FilterHolder cacheFilter(FileSettings fileSettings, String serviceName, StatsDSender statsDSender) {
-    return createCacheFilterHolder(fileSettings, serviceName, statsDSender);
+  FilterHolder cacheFilter(NabSettings nabSettings, String serviceName, StatsDSender statsDSender) {
+    return createCacheFilterHolder(nabSettings, serviceName, statsDSender);
   }
 }

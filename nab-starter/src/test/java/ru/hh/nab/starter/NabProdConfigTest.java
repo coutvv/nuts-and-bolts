@@ -1,25 +1,27 @@
 package ru.hh.nab.starter;
 
 import com.timgroup.statsd.StatsDClient;
+import org.eclipse.jetty.servlet.FilterHolder;
+import org.eclipse.jetty.util.thread.ThreadPool;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+import ru.hh.nab.common.settings.NabSettings;
+import ru.hh.nab.metrics.StatsDSender;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import static java.nio.file.StandardOpenOption.APPEND;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
-import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.util.thread.ThreadPool;
-import org.junit.After;
+
+import static java.nio.file.StandardOpenOption.APPEND;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
-import ru.hh.nab.common.properties.FileSettings;
-import ru.hh.nab.metrics.StatsDSender;
-import static ru.hh.nab.common.properties.PropertiesUtils.SETINGS_DIR_PROPERTY;
+import static ru.hh.nab.common.settings.NabSettings.SETINGS_DIR_PROPERTY;
 import static ru.hh.nab.starter.NabCommonConfig.SERVICE_NAME_PROPERTY;
 import static ru.hh.nab.starter.NabProdConfig.DATACENTER_NAME_PROPERTY;
 
@@ -48,7 +50,7 @@ public class NabProdConfigTest {
     context.register(NabProdConfig.class);
     context.refresh();
 
-    assertNotNull(context.getBean(FileSettings.class));
+    assertNotNull(context.getBean(NabSettings.class));
 
     assertEquals(TEST_SERVICE_NAME, context.getBean(SERVICE_NAME_PROPERTY, String.class));
     assertEquals(TEST_DATACENTER_NAME, context.getBean(DATACENTER_NAME_PROPERTY, String.class));

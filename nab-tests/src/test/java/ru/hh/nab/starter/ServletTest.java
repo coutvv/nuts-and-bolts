@@ -2,7 +2,6 @@ package ru.hh.nab.starter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Properties;
 import javax.servlet.GenericServlet;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -12,6 +11,7 @@ import org.junit.Test;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
+import ru.hh.nab.common.settings.NabSettings;
 import ru.hh.nab.testbase.NabTestBase;
 import ru.hh.nab.testbase.NabTestConfig;
 import static org.junit.Assert.assertEquals;
@@ -49,8 +49,8 @@ public class ServletTest extends NabTestBase {
   @Configuration
   static class Cfg {
     @Bean
-    TestServlet testServlet(Properties serviceProperties) {
-      return new TestServlet(serviceProperties.getProperty("customTestProperty"));
+    TestServlet testServlet(NabSettings nabSettings) {
+      return new TestServlet(nabSettings.getString("customTestProperty").get());
     }
   }
 }

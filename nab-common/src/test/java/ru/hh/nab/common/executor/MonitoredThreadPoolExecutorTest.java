@@ -1,10 +1,11 @@
 package ru.hh.nab.common.executor;
 
 import org.junit.Test;
-import ru.hh.nab.common.properties.FileSettings;
+import ru.hh.nab.common.settings.NabSettings;
+import ru.hh.nab.common.settings.TypesafeConfigLoader;
 import ru.hh.nab.metrics.StatsDSender;
 
-import java.util.Properties;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.stream.IntStream;
@@ -16,11 +17,12 @@ import static org.mockito.Mockito.mock;
 public class MonitoredThreadPoolExecutorTest {
   @Test
   public void testRejecting() {
-    var properties = new Properties();
-    properties.setProperty("minSize", "4");
-    properties.setProperty("maxSize", "4");
+    var settingsLoader = TypesafeConfigLoader.fromMap(Map.of(
+      "minSize", 4,
+      "maxSize", 4
+    ));
 
-    var tpe = MonitoredThreadPoolExecutor.create(new FileSettings(properties), "test", mock(StatsDSender.class), "test");
+    var tpe = MonitoredThreadPoolExecutor.create(new NabSettings(settingsLoader), "test", mock(StatsDSender.class), "test");
 
     tpe.execute(TASK);
     tpe.execute(TASK);

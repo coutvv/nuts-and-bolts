@@ -1,7 +1,7 @@
 package ru.hh.nab.hibernate;
 
 import java.sql.SQLException;
-import java.util.Properties;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -18,7 +18,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
-import ru.hh.nab.common.properties.FileSettings;
+import ru.hh.nab.common.settings.NabSettings;
+import ru.hh.nab.common.settings.TypesafeConfigLoader;
 import ru.hh.nab.datasource.DataSourceFactory;
 import ru.hh.nab.hibernate.datasource.RoutingDataSource;
 import ru.hh.nab.hibernate.model.TestEntity;
@@ -122,9 +123,8 @@ public class DataSourceSwitchingTest extends HibernateTestBase {
     }
 
     private static DataSource createDsSpy(DataSourceFactory dataSourceFactory, String key) {
-      Properties properties = new Properties();
-      properties.setProperty(key + ".pool.maximumPoolSize", "2");
-      return spy(dataSourceFactory.create(key, false, new FileSettings(properties)));
+      var settingsLoader = TypesafeConfigLoader.fromMap(Map.of(key + ".pool.maximumPoolSize", "2"));
+      return spy(dataSourceFactory.create(key, false, new NabSettings(settingsLoader)));
     }
   }
 

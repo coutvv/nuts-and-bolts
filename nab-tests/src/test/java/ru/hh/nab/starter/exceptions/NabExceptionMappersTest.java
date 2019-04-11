@@ -3,9 +3,10 @@ package ru.hh.nab.starter.exceptions;
 import org.hibernate.exception.JDBCConnectionException;
 import org.junit.Test;
 import org.springframework.test.context.ContextConfiguration;
+import ru.hh.nab.common.settings.NabSettings;
+import ru.hh.nab.common.settings.TypesafeConfigLoader;
 import ru.hh.nab.metrics.StatsDSender;
 import ru.hh.nab.common.executor.MonitoredThreadPoolExecutor;
-import ru.hh.nab.common.properties.FileSettings;
 import ru.hh.nab.starter.NabApplication;
 import ru.hh.nab.testbase.NabTestBase;
 import ru.hh.nab.testbase.NabTestConfig;
@@ -17,7 +18,7 @@ import javax.ws.rs.core.Response;
 
 import java.sql.SQLException;
 import java.sql.SQLTransientConnectionException;
-import java.util.Properties;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.IntStream;
 
@@ -128,11 +129,12 @@ public class NabExceptionMappersTest extends NabTestBase {
 
     @Path("/rejectedExecution")
     public Response rejectedExecution() {
-      var properties = new Properties();
-      properties.setProperty("minSize", "4");
-      properties.setProperty("maxSize", "4");
+      var settingsLoader = TypesafeConfigLoader.fromMap(Map.of(
+        "minSize", 4,
+        "maxSize", 4
+      ));
 
-      var tpe = MonitoredThreadPoolExecutor.create(new FileSettings(properties), "test", mock(StatsDSender.class), "test");
+      var tpe = MonitoredThreadPoolExecutor.create(new NabSettings(settingsLoader), "test", mock(StatsDSender.class), "test");
 
       tpe.execute(TASK);
       tpe.execute(TASK);

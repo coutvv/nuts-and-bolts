@@ -1,7 +1,5 @@
 package ru.hh.nab.starter.server.jetty;
 
-import static java.util.Optional.ofNullable;
-
 import javax.servlet.ServletContext;
 
 import org.eclipse.jetty.server.Connector;
@@ -13,22 +11,28 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.thread.ThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.hh.nab.common.properties.FileSettings;
 
 import java.util.Optional;
+
+import ru.hh.nab.common.settings.NabSettings;
 import ru.hh.nab.starter.server.logging.StructuredRequestLogger;
 
 public final class JettyServer {
-  private static final Logger LOGGER = LoggerFactory.getLogger(JettyServer.class);
   public static final String JETTY = "jetty";
   public static final String PORT = "port";
   public static final String JETTY_PORT = String.join(".", JETTY, PORT);
 
-  private final FileSettings jettySettings;
+  private static final int DEFAULT_CONNECTION_IDLE_TIMEOUT_MS = 3_000;
+  private static final int DEFAULT_ACCEPT_QUEUE_SIZE = 50;
+  private static final int DEFAULT_STOP_TIMEOUT_MS = 5_000;
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(JettyServer.class);
+
+  private final NabSettings jettySettings;
   private final Server server;
   private final ServletContextHandler servletContextHandler;
 
-  JettyServer(ThreadPool threadPool, FileSettings jettySettings, ServletContextHandler servletContextHandler) {
+  JettyServer(ThreadPool threadPool, NabSettings jettySettings, ServletContextHandler servletContextHandler) {
     this.jettySettings = jettySettings;
 
     server = new Server(threadPool);
@@ -47,7 +51,7 @@ public final class JettyServer {
       LOGGER.info("Jetty started on port {}", getPort());
     } catch (Exception e) {
       stopSilently();
-      String msg = ofNullable(jettySettings.getInteger("port")).filter(port -> port != 0).map(port -> ", port=" + port).orElse("");
+      String msg = jettySettings.getInteger("port").filter(port -> port != 0).map(port -> ", port=" + port).orElse("");
       throw new JettyServerException("Unable to start Jetty server" + msg, e);
     }
   }
@@ -76,14 +80,14 @@ public final class JettyServer {
   private void configureConnector() {
     ServerConnector serverConnector = new HHServerConnector(
       server,
-      ofNullable(jettySettings.getInteger("acceptors")).orElse(-1),
-      ofNullable(jettySettings.getInteger("selectors")).orElse(-1),
+      jettySettings.getInteger("acceptors").orElse(-1),
+      jettySettings.getInteger("selectors").orElse(-1),
       createHttpConnectionFactory());
 
-    serverConnector.setHost(jettySettings.getString("host"));
-    serverConnector.setPort(jettySettings.getInteger(PORT));
-    serverConnector.setIdleTimeout(ofNullable(jettySettings.getInteger("connectionIdleTimeoutMs")).orElse(3_000));
-    serverConnector.setAcceptQueueSize(ofNullable(jettySettings.getInteger("acceptQueueSize")).orElse(50));
+    jettySettings.getString("host").ifPresent(serverConnector::setHost);
+    jettySettings.getInteger(PORT).ifPresent(serverConnector::setPort);
+    serverConnector.setIdleTimeout(jettySettings.getInteger("connectionIdleTimeoutMs").orElse(DEFAULT_CONNECTION_IDLE_TIMEOUT_MS));
+    serverConnector.setAcceptQueueSize(jettySettings.getInteger("acceptQueueSize").orElse(DEFAULT_ACCEPT_QUEUE_SIZE));
 
     server.addConnector(serverConnector);
   }
@@ -93,7 +97,7 @@ public final class JettyServer {
   }
 
   private void configureStopTimeout() {
-    server.setStopTimeout(ofNullable(jettySettings.getInteger("stopTimeoutMs")).orElse(5_000));
+    server.setStopTimeout(jettySettings.getInteger("stopTimeoutMs").orElse(DEFAULT_STOP_TIMEOUT_MS));
   }
 
   private static HttpConnectionFactory createHttpConnectionFactory() {

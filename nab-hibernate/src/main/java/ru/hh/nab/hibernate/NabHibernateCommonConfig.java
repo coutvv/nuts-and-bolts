@@ -12,8 +12,8 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 
 import javax.sql.DataSource;
-import java.util.Properties;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import ru.hh.nab.common.settings.NabSettings;
 import ru.hh.nab.hibernate.transaction.DataSourceContextTransactionManager;
 import ru.hh.nab.hibernate.transaction.ExecuteOnDataSourceAspect;
 
@@ -35,16 +35,16 @@ public class NabHibernateCommonConfig {
   }
 
   @Bean
-  NabSessionFactoryBean sessionFactoryBean(DataSource routingDataSource, Properties hibernateProperties,
+  NabSessionFactoryBean sessionFactoryBean(DataSource routingDataSource, NabSettings hibernateSettings,
     BootstrapServiceRegistryBuilder bootstrapServiceRegistryBuilder, MappingConfig mappingConfig,
     Optional<Collection<NabSessionFactoryBean.ServiceSupplier<?>>> serviceSuppliers,
     Optional<Collection<NabSessionFactoryBean.SessionFactoryCreationHandler>> sessionFactoryCreationHandlers) {
-    NabSessionFactoryBean sessionFactoryBean = new NabSessionFactoryBean(routingDataSource, hibernateProperties, bootstrapServiceRegistryBuilder,
+    NabSessionFactoryBean sessionFactoryBean = new NabSessionFactoryBean(routingDataSource, hibernateSettings, bootstrapServiceRegistryBuilder,
       serviceSuppliers.orElseGet(ArrayList::new), sessionFactoryCreationHandlers.orElseGet(ArrayList::new));
     sessionFactoryBean.setDataSource(routingDataSource);
     sessionFactoryBean.setAnnotatedClasses(mappingConfig.getAnnotatedClasses());
     sessionFactoryBean.setPackagesToScan(mappingConfig.getPackagesToScan());
-    sessionFactoryBean.setHibernateProperties(hibernateProperties);
+    sessionFactoryBean.setHibernateProperties(hibernateSettings.getProperties());
     return sessionFactoryBean;
   }
 

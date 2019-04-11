@@ -2,7 +2,7 @@ package ru.hh.nab.testbase.postgres.embedded;
 
 import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 import ru.hh.nab.common.files.FileSystemUtils;
-import ru.hh.nab.common.properties.FileSettings;
+import ru.hh.nab.common.settings.NabSettings;
 import ru.hh.nab.datasource.DataSourceFactory;
 import ru.hh.nab.datasource.monitoring.NabMetricsTrackerFactoryProvider;
 
@@ -13,8 +13,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
 import java.util.UUID;
 import org.apache.commons.text.StringSubstitutor;
 
@@ -35,20 +33,21 @@ public class EmbeddedPostgresDataSourceFactory extends DataSourceFactory {
   }
 
   @Override
-  protected DataSource createDataSource(String dataSourceName, boolean isReadonly, FileSettings dataSourceSettings) {
-    Properties properties = dataSourceSettings.getProperties();
-
+  protected DataSource createDataSource(String dataSourceName, boolean isReadonly, NabSettings dataSourceSettings) {
     final StringSubstitutor jdbcUrlParamsSubstitutor = new StringSubstitutor(Map.of(
             "port", getEmbeddedPostgres().getPort(),
             "host", "localhost",
             "user", DEFAULT_USER
     ));
-    String jdbcUrl = jdbcUrlParamsSubstitutor.replace(Optional.ofNullable(dataSourceSettings.getString(JDBC_URL)).orElse(DEFAULT_JDBC_URL));
-    properties.setProperty(JDBC_URL, jdbcUrl);
-    properties.setProperty(USER, DEFAULT_USER);
-    properties.setProperty(PASSWORD, "");
 
-    return super.createDataSource(dataSourceName, isReadonly, new FileSettings(properties));
+    String jdbcUrl = jdbcUrlParamsSubstitutor.replace(dataSourceSettings.getString(JDBC_URL).orElse(DEFAULT_JDBC_URL));
+
+    dataSourceSettings = dataSourceSettings
+      .withProperty(JDBC_URL, jdbcUrl)
+      .withProperty(USER, DEFAULT_USER)
+      .withProperty(PASSWORD, "");
+
+    return super.createDataSource(dataSourceName, isReadonly, dataSourceSettings);
   }
 
   private static class EmbeddedPostgresSingleton {

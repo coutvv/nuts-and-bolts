@@ -11,19 +11,20 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.service.Service;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
+import ru.hh.nab.common.settings.NabSettings;
 import ru.hh.nab.hibernate.interceptor.ControllerPassingInterceptor;
 import ru.hh.nab.hibernate.interceptor.RequestIdPassingInterceptor;
 
 import javax.sql.DataSource;
-import java.util.Properties;
 
 public final class NabSessionFactoryBean extends LocalSessionFactoryBean {
 
   private final Collection<ServiceSupplier<?>> serviceSuppliers;
   private final Collection<SessionFactoryCreationHandler> sessionFactoryCreationHandlers;
 
-  public NabSessionFactoryBean(DataSource dataSource, Properties hibernateProperties, BootstrapServiceRegistryBuilder bootstrapServiceRegistryBuilder,
-      Collection<ServiceSupplier<?>> serviceSuppliers, Collection<SessionFactoryCreationHandler> sessionFactoryCreationHandlers) {
+  public NabSessionFactoryBean(DataSource dataSource, NabSettings hibernateSettings, BootstrapServiceRegistryBuilder bootstrapServiceRegistryBuilder,
+                               Collection<ServiceSupplier<?>> serviceSuppliers,
+                               Collection<SessionFactoryCreationHandler> sessionFactoryCreationHandlers) {
     this.serviceSuppliers = new ArrayList<>(serviceSuppliers);
     this.sessionFactoryCreationHandlers = new ArrayList<>(sessionFactoryCreationHandlers);
     MetadataSources metadataSources = new MetadataSources(bootstrapServiceRegistryBuilder.build());
@@ -32,36 +33,33 @@ public final class NabSessionFactoryBean extends LocalSessionFactoryBean {
     setDataSource(dataSource);
 
     // if set to true, it slows down acquiring database connection on application start
-    hibernateProperties.setProperty("hibernate.temp.use_jdbc_metadata_defaults", "false");
+    hibernateSettings = hibernateSettings.withProperty("hibernate.temp.use_jdbc_metadata_defaults", "false");
 
     // used to retrieve natively generated keys after insert
     // if set to false, Hibernate will retrieve key directly from sequence
     // and can fail if GenerationType = IDENTITY and sequence name is non-standard
-    hibernateProperties.setProperty("hibernate.jdbc.use_get_generated_keys", "true");
+    hibernateSettings = hibernateSettings.withProperty("hibernate.jdbc.use_get_generated_keys", "true");
 
-    setHibernateProperties(hibernateProperties);
+    setHibernateProperties(hibernateSettings.getProperties());
 
-    configureAddToQuery(hibernateProperties);
+    configureAddToQuery(hibernateSettings);
   }
 
-  private void configureAddToQuery(Properties hibernateProperties) {
-    String addToQueryValue = hibernateProperties.getProperty("hibernate.add_to_query");
-    if (addToQueryValue == null) {
-      return;
-    }
-
-    switch (addToQueryValue) {
-      case "request_id":
-        setEntityInterceptor(new RequestIdPassingInterceptor());
-        break;
-      // Request_id in sql query prevents reuse of prepared statements, because every sql query is different.
-      // Controller does not prevent reuse of prepared statements, because same sql queries from the same controller can be reused.
-      case "controller":
-        setEntityInterceptor(new ControllerPassingInterceptor());
-        break;
-      default:
-        throw new RuntimeException("unknown value of hibernate 'addToQuery' property");
-    }
+  private void configureAddToQuery(NabSettings hibernateSettings) {
+    hibernateSettings.getString("hibernate.add_to_query").ifPresent(addToQueryValue -> {
+      switch (addToQueryValue) {
+        case "request_id":
+          setEntityInterceptor(new RequestIdPassingInterceptor());
+          break;
+        // Request_id in sql query prevents reuse of prepared statements, because every sql query is different.
+        // Controller does not prevent reuse of prepared statements, because same sql queries from the same controller can be reused.
+        case "controller":
+          setEntityInterceptor(new ControllerPassingInterceptor());
+          break;
+        default:
+          throw new RuntimeException("unknown value of hibernate 'addToQuery' property");
+      }
+    });
   }
 
   @Override

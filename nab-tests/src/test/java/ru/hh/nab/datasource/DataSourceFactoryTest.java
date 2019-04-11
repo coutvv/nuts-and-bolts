@@ -1,7 +1,7 @@
 package ru.hh.nab.datasource;
 
 import com.opentable.db.postgres.embedded.EmbeddedPostgres;
-import java.util.Properties;
+
 import javax.sql.DataSource;
 
 import com.zaxxer.hikari.HikariDataSource;
@@ -16,7 +16,9 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 import org.junit.Test;
-import ru.hh.nab.common.properties.FileSettings;
+import ru.hh.nab.common.settings.NabSettings;
+import ru.hh.nab.common.settings.Settings;
+import ru.hh.nab.common.settings.TypesafeConfigLoader;
 import ru.hh.nab.datasource.monitoring.NabMetricsTrackerFactoryProvider;
 import ru.hh.nab.datasource.monitoring.StatementTimeoutDataSource;
 import ru.hh.nab.metrics.StatsDSender;
@@ -42,10 +44,8 @@ public class DataSourceFactoryTest {
 
   @Test
   public void testCreateDataSourceWithIncompleteSettings() {
-    Properties properties = createIncompleteTestProperties();
-
     try {
-      createTestDataSource(properties);
+      createTestDataSource(createIncompleteTestSettings());
       fail();
     } catch (RuntimeException e) {
       assertTrue(e.getMessage().contains("master.pool"));
@@ -54,55 +54,50 @@ public class DataSourceFactoryTest {
 
   @Test
   public void testCreateDataSource() {
-    Properties properties = createTestProperties();
-
-    HikariDataSource dataSource = (HikariDataSource) createTestDataSource(properties);
+    HikariDataSource dataSource = (HikariDataSource) createTestDataSource(createTestSettings());
     assertEquals(TEST_DATA_SOURCE_TYPE, dataSource.getPoolName());
   }
 
   @Test
   public void testCreateStatementTimeoutDataSource() {
-    Properties properties = createTestProperties();
-    properties.setProperty(getProperty(STATEMENT_TIMEOUT_MS), "100");
+    var settings = createTestSettings()
+      .withProperty(getProperty(STATEMENT_TIMEOUT_MS), "100");
 
-    assertTrue(createTestDataSource(properties) instanceof StatementTimeoutDataSource);
+    assertTrue(createTestDataSource(settings) instanceof StatementTimeoutDataSource);
   }
 
   @Test
   public void testCreateDataSourceWithMetrics() {
-    Properties properties = createTestProperties();
-    properties.setProperty(getProperty(MONITORING_SEND_STATS), "true");
-    properties.setProperty(getProperty(MONITORING_LONG_CONNECTION_USAGE_MS), "10");
-    properties.setProperty(getProperty(MONITORING_SEND_SAMPLED_STATS), "true");
+    var settings = createTestSettings()
+      .withProperty(getProperty(MONITORING_SEND_STATS), "true")
+      .withProperty(getProperty(MONITORING_LONG_CONNECTION_USAGE_MS), "10")
+      .withProperty(getProperty(MONITORING_SEND_SAMPLED_STATS), "true");
 
-    HikariDataSource dataSource = (HikariDataSource) createTestDataSource(properties);
+    HikariDataSource dataSource = (HikariDataSource) createTestDataSource(settings);
     assertNotNull(dataSource.getMetricsTrackerFactory());
   }
 
-  private static DataSource createTestDataSource(Properties properties) {
-    return dataSourceFactory.create(TEST_DATA_SOURCE_TYPE, false, new FileSettings(properties));
+  private static DataSource createTestDataSource(Settings settings) {
+    return dataSourceFactory.create(TEST_DATA_SOURCE_TYPE, false, new NabSettings(settings));
   }
 
-  private static Properties createTestProperties() {
-    Properties properties = createIncompleteTestProperties();
-    properties.setProperty(getProperty(DataSourceSettings.POOL_SETTINGS_PREFIX + ".maximumPoolSize"), "2");
-    return properties;
+  private static Settings createTestSettings() {
+    return createIncompleteTestSettings()
+      .withProperty(getProperty(DataSourceSettings.POOL_SETTINGS_PREFIX + ".maximumPoolSize"), "2");
   }
 
-  private static Properties createIncompleteTestProperties() {
-    Properties properties = new Properties();
-
+  private static Settings createIncompleteTestSettings() {
     final StringSubstitutor jdbcUrlParamsSubstitutor = new StringSubstitutor(Map.of(
             "port", testDb.getPort(),
             "host", "localhost",
             "user", EmbeddedPostgresDataSourceFactory.DEFAULT_USER
     ));
-    properties.setProperty(getProperty(DataSourceSettings.JDBC_URL),
-      jdbcUrlParamsSubstitutor.replace(EmbeddedPostgresDataSourceFactory.DEFAULT_JDBC_URL));
 
-    properties.setProperty(getProperty(DataSourceSettings.USER), EmbeddedPostgresDataSourceFactory.DEFAULT_USER);
-    properties.setProperty(getProperty(DataSourceSettings.PASSWORD), EmbeddedPostgresDataSourceFactory.DEFAULT_USER);
-    return properties;
+    return new NabSettings(TypesafeConfigLoader.fromMap(Map.of(
+      getProperty(DataSourceSettings.JDBC_URL), jdbcUrlParamsSubstitutor.replace(EmbeddedPostgresDataSourceFactory.DEFAULT_JDBC_URL),
+      getProperty(DataSourceSettings.USER), EmbeddedPostgresDataSourceFactory.DEFAULT_USER,
+      getProperty(DataSourceSettings.PASSWORD), EmbeddedPostgresDataSourceFactory.DEFAULT_USER
+    )));
   }
 
   private static String getProperty(String propertyName) {

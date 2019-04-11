@@ -2,7 +2,7 @@ package ru.hh.nab.common.executor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.hh.nab.common.properties.FileSettings;
+import ru.hh.nab.common.settings.NabSettings;
 import ru.hh.nab.metrics.Histogram;
 import ru.hh.nab.metrics.Max;
 import ru.hh.nab.metrics.StatsDSender;
@@ -16,7 +16,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static java.util.Optional.ofNullable;
 import static java.util.concurrent.Executors.defaultThreadFactory;
 import static ru.hh.nab.metrics.StatsDSender.DEFAULT_PERCENTILES;
 
@@ -61,12 +60,12 @@ public class MonitoredThreadPoolExecutor extends ThreadPoolExecutor {
     }
   }
 
-  public static ThreadPoolExecutor create(FileSettings threadPoolSettings, String threadPoolName, StatsDSender statsDSender, String serviceName) {
-    int coreThreads = ofNullable(threadPoolSettings.getInteger("minSize")).orElse(4);
-    int maxThreads = ofNullable(threadPoolSettings.getInteger("maxSize")).orElse(16);
-    int queueSize = ofNullable(threadPoolSettings.getInteger("queueSize")).orElse(maxThreads);
-    int keepAliveTimeSec = ofNullable(threadPoolSettings.getInteger("keepAliveTimeSec")).orElse(60);
-    Integer longTaskDurationMs = ofNullable(threadPoolSettings.getInteger("longTaskDurationMs")).orElse(null);
+  public static ThreadPoolExecutor create(NabSettings threadPoolSettings, String threadPoolName, StatsDSender statsDSender, String serviceName) {
+    int coreThreads = threadPoolSettings.getInteger("minSize").orElse(4);
+    int maxThreads = threadPoolSettings.getInteger("maxSize").orElse(16);
+    int queueSize = threadPoolSettings.getInteger("queueSize").orElse(maxThreads);
+    int keepAliveTimeSec = threadPoolSettings.getInteger("keepAliveTimeSec").orElse(60);
+    Integer longTaskDurationMs = threadPoolSettings.getInteger("longTaskDurationMs").orElse(null);
 
     var count = new AtomicLong(0);
     ThreadFactory threadFactory = r -> {

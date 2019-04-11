@@ -6,7 +6,7 @@ import com.zaxxer.hikari.metrics.PoolStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.hh.nab.common.mdc.MDC;
-import ru.hh.nab.common.properties.FileSettings;
+import ru.hh.nab.common.settings.NabSettings;
 import ru.hh.nab.datasource.monitoring.stack.CompressedStackFactory;
 import ru.hh.nab.datasource.monitoring.stack.CompressedStackFactoryConfig;
 import ru.hh.nab.metrics.Counters;
@@ -17,7 +17,6 @@ import ru.hh.nab.metrics.Tag;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
-import static java.util.Optional.ofNullable;
 import static ru.hh.nab.datasource.DataSourceSettings.MONITORING_LONG_CONNECTION_USAGE_MS;
 import static ru.hh.nab.datasource.DataSourceSettings.MONITORING_SEND_SAMPLED_STATS;
 import static ru.hh.nab.datasource.monitoring.ConnectionPoolMetrics.ACQUISITION_MS;
@@ -44,11 +43,11 @@ public class NabMetricsTrackerFactory implements MetricsTrackerFactory {
   private final CompressedStackFactoryConfig compressedStackFactoryConfig;
 
   public NabMetricsTrackerFactory(String serviceName, StatsDSender statsDSender, CompressedStackFactoryConfig compressedStackFactoryConfig,
-                                  FileSettings dataSourceSettings) {
+                                  NabSettings dataSourceSettings) {
     this.serviceName = serviceName;
     this.statsDSender = statsDSender;
-    this.sendSampledStats = ofNullable(dataSourceSettings.getBoolean(MONITORING_SEND_SAMPLED_STATS)).orElse(Boolean.FALSE);
-    this.longConnectionUsageMs = dataSourceSettings.getInteger(MONITORING_LONG_CONNECTION_USAGE_MS);
+    this.sendSampledStats = dataSourceSettings.getBoolean(MONITORING_SEND_SAMPLED_STATS).orElse(Boolean.FALSE);
+    this.longConnectionUsageMs = dataSourceSettings.getInteger(MONITORING_LONG_CONNECTION_USAGE_MS).orElse(null);
     this.compressedStackFactoryConfig = compressedStackFactoryConfig;
   }
 
