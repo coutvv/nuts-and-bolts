@@ -49,6 +49,14 @@ public final class DataSourceContextUnsafe {
     return ofNullable(currentDataSourceKey.get()).orElse(DataSourceType.MASTER);
   }
 
+  public static boolean isWritableDataSource(String dataSourceName) {
+    return DataSourceType.getPropertiesFor(dataSourceName).isWritable();
+  }
+
+  public static boolean isCurrentDataSourceWritable() {
+    return isWritableDataSource(getDataSourceKey());
+  }
+
   public static void setDefaultMDC() {
     updateMDC(DataSourceType.MASTER);
   }

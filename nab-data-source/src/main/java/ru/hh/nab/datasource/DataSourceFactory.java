@@ -35,6 +35,7 @@ public class DataSourceFactory {
     if (sendStats && metricsTrackerFactoryProvider != null) {
       hikariConfig.setMetricsTrackerFactory(metricsTrackerFactoryProvider.create(monitoringSettings));
     }
+    DataSourceType.registerPropertiesFor(hikariConfig);
     return new HikariDataSource(hikariConfig);
   }
 
@@ -71,7 +72,7 @@ public class DataSourceFactory {
     }
 
     checkDataSource(underlyingDataSource, dataSourceName);
-
+    DataSourceType.registerPropertiesFor(hikariConfig);
     return underlyingDataSource;
   }
 
