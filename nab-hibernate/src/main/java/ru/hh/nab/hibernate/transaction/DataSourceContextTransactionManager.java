@@ -1,8 +1,12 @@
 package ru.hh.nab.hibernate.transaction;
 
+import java.util.List;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
+import static org.springframework.transaction.TransactionDefinition.PROPAGATION_NEVER;
 import static org.springframework.transaction.TransactionDefinition.PROPAGATION_NOT_SUPPORTED;
+import static org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRED;
+import static org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
@@ -14,6 +18,7 @@ import static org.springframework.transaction.support.TransactionSynchronization
 public class DataSourceContextTransactionManager implements PlatformTransactionManager {
 
   private final PlatformTransactionManager delegate;
+  private static boolean previousTransactionIsPropagationNever;
 
   public DataSourceContextTransactionManager(PlatformTransactionManager delegate) {
     this.delegate = delegate;
@@ -26,6 +31,14 @@ public class DataSourceContextTransactionManager implements PlatformTransactionM
   }
 
   private static TransactionDefinition fixTransactionDefinition(TransactionDefinition definition) {
+    if (definition.getPropagationBehavior() == PROPAGATION_NEVER) {
+      previousTransactionIsPropagationNever = true;
+      return definition;
+    }
+    if (List.of(PROPAGATION_REQUIRED, PROPAGATION_REQUIRES_NEW).contains(definition.getPropagationBehavior())
+        && previousTransactionIsPropagationNever) {
+      return definition;
+    }
     if (DataSourceContextUnsafe.isCurrentDataSourceWritable()) {
       if (definition.isReadOnly()) {
         return getReadOnlyTransactionDefinition(definition, PROPAGATION_SUPPORTS);
@@ -47,11 +60,13 @@ public class DataSourceContextTransactionManager implements PlatformTransactionM
 
   @Override
   public void commit(TransactionStatus status) throws TransactionException {
+    previousTransactionIsPropagationNever = false;
     delegate.commit(status);
   }
 
   @Override
   public void rollback(TransactionStatus status) throws TransactionException {
+    previousTransactionIsPropagationNever = false;
     delegate.rollback(status);
   }
 
