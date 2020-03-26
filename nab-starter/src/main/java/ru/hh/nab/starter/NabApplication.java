@@ -7,6 +7,8 @@ import io.sentry.Sentry;
 import java.util.Properties;
 import java.util.function.Function;
 import javax.servlet.ServletContextEvent;
+import org.eclipse.jetty.util.component.AbstractLifeCycle;
+import org.eclipse.jetty.util.component.LifeCycle;
 import org.eclipse.jetty.util.thread.ThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +24,8 @@ import ru.hh.nab.common.properties.FileSettings;
 
 import java.lang.management.ManagementFactory;
 import java.time.LocalDateTime;
+import ru.hh.nab.starter.event.ApplicationStartedEvent;
+import ru.hh.nab.starter.event.ApplicationStoppingEvent;
 import ru.hh.nab.starter.server.jetty.JettyServer;
 import ru.hh.nab.starter.server.jetty.JettyServerFactory;
 import ru.hh.nab.starter.servlet.WebAppInitializer;
@@ -144,6 +148,17 @@ public final class NabApplication {
           if (baseCtx instanceof ConfigurableApplicationContext) {
             ((ConfigurableApplicationContext) baseCtx).close();
           }
+        }
+      });
+      webApp.addLifeCycleListener(new AbstractLifeCycle.AbstractLifeCycleListener() {
+        @Override
+        public void lifeCycleStarted(LifeCycle event) {
+          targetCtx.publishEvent(new ApplicationStartedEvent(webApp));
+        }
+
+        @Override
+        public void lifeCycleStopping(LifeCycle event) {
+          targetCtx.publishEvent(new ApplicationStoppingEvent(webApp));
         }
       });
     };

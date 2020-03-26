@@ -29,21 +29,6 @@ public class TransactionalCheck implements HttpClientEventListener {
   private final ScheduledFuture<?> publisher;
   private Action action;
 
-
-  /**
-   * @deprecated
-   * use {@link TransactionalCheck#TransactionalCheck(ru.hh.nab.jclient.checks.TransactionalCheck.Action,
-   * int, java.util.concurrent.ScheduledExecutorService, long, java.lang.String...)}
-   */
-  @Deprecated(forRemoval = true)
-  public TransactionalCheck() {
-    action = Action.LOG;
-    publisher = null;
-    callInTxStatistics = null;
-    packagesToSkip = null;
-    stackTraceDepthLimit = -1;
-  }
-
   public TransactionalCheck(Action action, int filteredTraceStackDepthLimit, ScheduledExecutorService executorService, long intervalMs,
                             Set<String> packagesToSkip) {
     this.action = action;
