@@ -166,6 +166,7 @@ public class ConsulService {
       LOGGER.info("Registration disabled. Skipping deregistration");
       return;
     }
+    agentClient.deregisterCheck("service:" + serviceId);
     agentClient.deregister(serviceId);
     LOGGER.debug("De-registered id: {} from consul, going to sleep {}ms to wait possible requests", serviceId, sleepAfterDeregisterMillis);
     kvCache.stop();
