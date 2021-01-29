@@ -175,7 +175,6 @@
                 <groupId>com.orbitz.consul</groupId>
                 <artifactId>consul-client</artifactId>
                 <version>${orbitz.consul.version}</version>
-                <classifier>shaded</classifier>
             </dependency>
         </dependencies>
     </dependencyManagement>

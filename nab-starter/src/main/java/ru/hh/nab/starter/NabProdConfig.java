@@ -3,7 +3,7 @@ package ru.hh.nab.starter;
 import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.KeyValueClient;
-import com.orbitz.google.common.net.HostAndPort;
+import com.google.common.net.HostAndPort;
 import com.timgroup.statsd.NonBlockingStatsDClientBuilder;
 import com.timgroup.statsd.StatsDClient;
 
