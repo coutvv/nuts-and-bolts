@@ -31,11 +31,13 @@ import org.junit.jupiter.api.Test;
 public class ConsumerRecoveryAfterFailTest extends KafkaConsumerTestbase {
   private static AtomicInteger ID_SEQUENCE = new AtomicInteger(0);
   private List<String> processedMessages;
+  private List<String> sendMessages;
   private KafkaConsumer<String> consumer;
 
   @BeforeEach
   public void setUp() {
     processedMessages = synchronizedList(new ArrayList<>());
+    sendMessages = synchronizedList(new ArrayList<>());
   }
 
   @Test
@@ -75,7 +77,7 @@ public class ConsumerRecoveryAfterFailTest extends KafkaConsumerTestbase {
     startConsumer((messages, ack) -> {
       messages.forEach(m -> {
         processedMessages.add(m.value());
-          ack.seek(m);
+        ack.seek(m);
       });
     });
     assertProcessedMessagesCount(117);
@@ -203,15 +205,19 @@ public class ConsumerRecoveryAfterFailTest extends KafkaConsumerTestbase {
   private List<String> putMessagesIntoKafka(int count) {
     List<String> messages = new ArrayList<>();
     for (int i = 0; i < count; i++) {
-      String body = "body" + ID_SEQUENCE.incrementAndGet();
+      String body = String.valueOf(ID_SEQUENCE.incrementAndGet());
       kafkaTestUtils.sendMessage(topicName, body);
       messages.add(body);
+      sendMessages.add(body);
     }
     return messages;
   }
 
   private void assertProcessedMessagesCount(int expectedCount) throws InterruptedException {
-    waitUntil(() -> assertEquals(expectedCount, processedMessages.size()));
+    String sendMessages = String.join(",", this.sendMessages);
+    waitUntil(() -> assertEquals(expectedCount, processedMessages.size(),
+        String.format("sendMessages: %s\n processedMessages: %s",
+            sendMessages, String.join(",", this.processedMessages))));
   }
 
   private void assertProcessedMessagesMoreThan(int expectedCount) throws InterruptedException {
