@@ -12,13 +12,18 @@ import ru.hh.jclient.common.HttpClientEventListener;
 import ru.hh.jclient.common.HttpClientFactoryBuilder;
 import ru.hh.jclient.common.check.GlobalTimeoutCheck;
 import ru.hh.jclient.common.util.storage.MDCStorage;
+import ru.hh.jclient.consul.model.config.JClientInfrastructureConfig;
 import ru.hh.nab.common.properties.FileSettings;
 import ru.hh.nab.jclient.checks.TransactionalCheck;
 
+import javax.inject.Named;
 import java.util.List;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static ru.hh.nab.jclient.UriCompactionUtil.compactUri;
+import static ru.hh.nab.starter.NabCommonConfig.DATACENTER_NAME_PROPERTY;
+import static ru.hh.nab.starter.NabCommonConfig.NODE_NAME_PROPERTY;
+import static ru.hh.nab.starter.NabCommonConfig.SERVICE_NAME_PROPERTY;
 
 @Configuration
 public class NabJClientConfig {
@@ -66,5 +71,27 @@ public class NabJClientConfig {
   @Bean
   JClientContextProviderFilter jClientContextProviderFilter(HttpClientContextThreadLocalSupplier contextSupplier) {
     return new JClientContextProviderFilter(contextSupplier);
+  }
+
+  @Bean
+  JClientInfrastructureConfig infrastructureConfig(@Named(SERVICE_NAME_PROPERTY) String serviceName,
+                                                   @Named(DATACENTER_NAME_PROPERTY) String datacenter,
+                                                   @Named(NODE_NAME_PROPERTY) String nodeName) {
+    return new JClientInfrastructureConfig() {
+      @Override
+      public String getServiceName() {
+        return serviceName;
+      }
+
+      @Override
+      public String getCurrentDC() {
+        return datacenter;
+      }
+
+      @Override
+      public String getCurrentNodeName() {
+        return nodeName;
+      }
+    };
   }
 }

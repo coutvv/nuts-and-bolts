@@ -16,12 +16,12 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>nab-common</artifactId>
+            <artifactId>nab-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ru.hh.jclient-common</groupId>
-            <artifactId>jclient-common</artifactId>
+            <artifactId>jclient-balancing</artifactId>
             <version>${jclient.version}</version>
         </dependency>
 
