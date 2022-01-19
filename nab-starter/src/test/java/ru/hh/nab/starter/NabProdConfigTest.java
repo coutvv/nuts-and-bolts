@@ -1,6 +1,7 @@
 package ru.hh.nab.starter;
 
 import com.timgroup.statsd.StatsDClient;
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
@@ -110,7 +111,7 @@ public class NabProdConfigTest {
 
   static class TestConsulServiceRegisterHandler extends AbstractHandler {
     @Override
-    public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) {
+    public void handle(String target, Request baseRequest, jakarta.servlet.http.HttpServletRequest request, jakarta.servlet.http.HttpServletResponse response) throws IOException, ServletException {
       if ("/v1/agent/self".equals(target) || "/v1/agent/service/register".equals(target) || "/v1/status/leader".equals(target)) {
         baseRequest.setHandled(true);
         response.setStatus(200);

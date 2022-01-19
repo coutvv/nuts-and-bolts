@@ -1,5 +1,7 @@
 package ru.hh.nab.starter.filters;
 
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import java.io.IOException;
 import static java.util.Optional.ofNullable;
 import javax.servlet.FilterChain;
@@ -11,28 +13,49 @@ import static ru.hh.jclient.common.HttpHeaderNames.X_OUTER_TIMEOUT_MS;
 import ru.hh.nab.starter.http.RequestContext;
 import ru.hh.nab.starter.server.RequestHeaders;
 
-public final class CommonHeadersFilter extends OncePerRequestFilter {
+//public final class CommonHeadersFilter extends OncePerRequestFilter {
+public final class CommonHeadersFilter implements jakarta.servlet.Filter {
+
+//  @Override
+//  protected void doFilterInternal(HttpServletRequest request,
+//                                  HttpServletResponse response,
+//                                  FilterChain filterChain) throws ServletException, IOException {
+//
+//    var source = request.getHeader(RequestHeaders.REQUEST_SOURCE);
+//    var isLoadTesting = request.getHeader(RequestHeaders.LOAD_TESTING) != null;
+//    var outerTimeoutMs = request.getHeader(X_OUTER_TIMEOUT_MS);
+//
+//    try {
+//      RequestContext.setRequestSource(source);
+//      RequestContext.setLoadTesting(isLoadTesting);
+//      RequestContext.setOuterTimeoutMs(ofNullable(outerTimeoutMs).map(Long::valueOf).orElse(null));
+//
+//      filterChain.doFilter(request, response);
+//
+//    } finally {
+//      RequestContext.clearLoadTesting();
+//      RequestContext.clearRequestSource();
+//      RequestContext.clearOuterTimeout();
+//    }
+//  }
 
   @Override
-  protected void doFilterInternal(HttpServletRequest request,
-                                  HttpServletResponse response,
-                                  FilterChain filterChain) throws ServletException, IOException {
-
-    var source = request.getHeader(RequestHeaders.REQUEST_SOURCE);
-    var isLoadTesting = request.getHeader(RequestHeaders.LOAD_TESTING) != null;
-    var outerTimeoutMs = request.getHeader(X_OUTER_TIMEOUT_MS);
-
-    try {
-      RequestContext.setRequestSource(source);
-      RequestContext.setLoadTesting(isLoadTesting);
-      RequestContext.setOuterTimeoutMs(ofNullable(outerTimeoutMs).map(Long::valueOf).orElse(null));
-
-      filterChain.doFilter(request, response);
-
-    } finally {
-      RequestContext.clearLoadTesting();
-      RequestContext.clearRequestSource();
-      RequestContext.clearOuterTimeout();
-    }
+  public void doFilter(ServletRequest request, ServletResponse response, jakarta.servlet.FilterChain chain) throws IOException, jakarta.servlet.ServletException {
+    //    var source = request.getHeader(RequestHeaders.REQUEST_SOURCE);
+//    var isLoadTesting = request.getHeader(RequestHeaders.LOAD_TESTING) != null;
+//    var outerTimeoutMs = request.getHeader(X_OUTER_TIMEOUT_MS);
+//
+//    try {
+//      RequestContext.setRequestSource(source);
+//      RequestContext.setLoadTesting(isLoadTesting);
+//      RequestContext.setOuterTimeoutMs(ofNullable(outerTimeoutMs).map(Long::valueOf).orElse(null));
+//
+//      filterChain.doFilter(request, response);
+//
+//    } finally {
+//      RequestContext.clearLoadTesting();
+//      RequestContext.clearRequestSource();
+//      RequestContext.clearOuterTimeout();
+//    }
   }
 }

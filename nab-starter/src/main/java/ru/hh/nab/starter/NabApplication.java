@@ -100,7 +100,7 @@ public final class NabApplication {
     return createJettyServer(
         baseContext,
         directlyUseAsWebAppRoot,
-        webAppContext -> webAppContext.getServer().addLifeCycleListener(new JettyLifeCycleListener(baseContext))
+        webAppContext -> webAppContext.getServer().addEventListener(new JettyLifeCycleListener(baseContext))
     );
   }
 

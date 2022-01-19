@@ -1,6 +1,6 @@
 package ru.hh.nab.starter.jersey;
 
-import com.sun.xml.bind.marshaller.CharacterEscapeHandler;
+import com.sun.xml.txw2.output.CharacterEscapeHandler;
 import java.io.IOException;
 import java.io.Writer;
 

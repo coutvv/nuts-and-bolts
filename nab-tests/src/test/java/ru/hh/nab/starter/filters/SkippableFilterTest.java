@@ -1,5 +1,7 @@
 package ru.hh.nab.starter.filters;
 
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -31,6 +33,11 @@ public class SkippableFilterTest {
         throws ServletException, IOException {
       response.addHeader("x-passed-filter", "true");
       filterChain.doFilter(request, response);
+    }
+
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, jakarta.servlet.FilterChain chain) throws IOException, jakarta.servlet.ServletException {
+
     }
   }
 

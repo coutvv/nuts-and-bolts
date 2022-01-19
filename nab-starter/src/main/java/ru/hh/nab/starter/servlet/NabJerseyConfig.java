@@ -1,5 +1,6 @@
 package ru.hh.nab.starter.servlet;
 
+import jakarta.servlet.Servlet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -11,7 +12,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
-import javax.servlet.Servlet;
+//import javax.servlet.Servlet;
 import javax.ws.rs.Path;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;

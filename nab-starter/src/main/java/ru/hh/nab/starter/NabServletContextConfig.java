@@ -1,18 +1,21 @@
 package ru.hh.nab.starter;
 
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.FilterRegistration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.servlet.DispatcherType;
+//import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
-import javax.servlet.FilterRegistration;
+//import javax.servlet.FilterRegistration;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextListener;
 import javax.servlet.ServletRegistration;
+import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.FilterMapping;
 import org.eclipse.jetty.servlet.ServletHandler;
@@ -55,16 +58,22 @@ public class NabServletContextConfig {
     webAppContext.addEventListener(new RequestContextListener());
     registerFilter(webAppContext.getServletContext(), RequestIdLoggingFilter.class.getName(), RequestIdLoggingFilter.class,
       Collections.emptyMap(), EnumSet.allOf(DispatcherType.class), DEFAULT_MAPPING);
+//    (ContextHandler.Context servletContext, String filterName, Class<? extends jakarta.servlet.Filter> filterClass,
+//        Map<String, String> initParameters, EnumSet<DispatcherType> dispatcherTypes,
+//        String... mappings) {
+//      validateMappings(mappings);
+
     registerFilter(webAppContext.getServletContext(), CommonHeadersFilter.class.getName(), CommonHeadersFilter.class,
       Collections.emptyMap(), EnumSet.allOf(DispatcherType.class), DEFAULT_MAPPING);
     if (rootCtx.containsBean("cacheFilter")) {
       FilterHolder cacheFilter = rootCtx.getBean("cacheFilter", FilterHolder.class);
       if (cacheFilter.isInstance()) {
+        //4
         registerFilter(webAppContext.getServletHandler(), cacheFilter, EnumSet.allOf(DispatcherType.class), DEFAULT_MAPPING);
       }
     }
     rootCtx.getBeansOfType(NabServletFilter.class).entrySet().stream()
-      .map(entry -> Map.entry(entry.getKey(), (Filter) entry.getValue()))
+      .map(entry -> Map.entry(entry.getKey(), (jakarta.servlet.Filter) entry.getValue()))
       .forEach(entry -> registerFilter(webAppContext.getServletContext(), entry.getKey(), entry.getValue(),
         EnumSet.allOf(DispatcherType.class), DEFAULT_MAPPING));
     configureWebapp(webAppContext, rootCtx);
@@ -130,8 +139,9 @@ public class NabServletContextConfig {
       throw new IllegalArgumentException("URL mapping must be present");
     }
   }
-
-  public static <F extends Filter> void registerFilter(ServletContext servletContext, String filterName, Class<F> filterClass,
+ //2
+  //public Class<? extends T> getHeldClass()
+  public static <F extends Filter> void registerFilter(ContextHandler.Context servletContext, String filterName, Class<? extends jakarta.servlet.Filter> filterClass,
                                                        Map<String, String> initParameters, EnumSet<DispatcherType> dispatcherTypes,
                                                        String... mappings) {
     validateMappings(mappings);
@@ -141,13 +151,16 @@ public class NabServletContextConfig {
     dynamic.addMappingForUrlPatterns(dispatcherTypes, true, mappings);
     dynamic.setAsyncSupported(Boolean.parseBoolean(initParameters.getOrDefault("async-supported", "true")));
   }
-
-  public static <F extends Filter> void registerFilter(ServletContext servletContext, String filterName, F filter,
+  //1
+  //todo вот этот вроде
+  public static <F extends Filter> void registerFilter(ContextHandler.Context servletContext, String filterName, jakarta.servlet.Filter filter,
                                                        EnumSet<DispatcherType> dispatcherTypes, String... mappings) {
+    //3
     registerFilter(servletContext, filterName, filter, dispatcherTypes, true, mappings);
   }
 
-  public static <F extends Filter> void registerFilter(ServletContext servletContext, String filterName, F filter,
+  //3
+  public static <F extends Filter> void registerFilter(ContextHandler.Context servletContext, String filterName, jakarta.servlet.Filter filter,
                                                        EnumSet<DispatcherType> dispatcherTypes, boolean async, String... mappings) {
     validateMappings(mappings);
     FilterRegistration.Dynamic dynamic = servletContext.addFilter(filterName, filter);
@@ -155,6 +168,8 @@ public class NabServletContextConfig {
     dynamic.addMappingForUrlPatterns(dispatcherTypes, true, mappings);
   }
 
+
+  //4
   public static void registerFilter(ServletHandler servletContextHandler, FilterHolder filterHolder,
                                     EnumSet<DispatcherType> dispatcherTypes, String... mappings) {
     validateMappings(mappings);
@@ -165,12 +180,16 @@ public class NabServletContextConfig {
     servletContextHandler.addFilter(filterHolder, mapping);
   }
 
-  public static void registerFilter(ServletContext servletContext, String filterName, FilterHolder filterHolder,
+  //5
+  public static void registerFilter(ContextHandler.Context servletContext, String filterName, FilterHolder filterHolder,
                                     EnumSet<DispatcherType> dispatcherTypes, String... mappings) {
     validateMappings(mappings);
     if (filterHolder.isInstance()) {
+      //11
       registerFilter(servletContext, filterName, filterHolder.getFilter(), dispatcherTypes, mappings);
     } else {
+      //2
+//      registerFilter(servletContext, filterName, filterHolder.getHeldClass(), filterHolder.getInitParameters(), dispatcherTypes, mappings);
       registerFilter(servletContext, filterName, filterHolder.getHeldClass(), filterHolder.getInitParameters(), dispatcherTypes, mappings);
     }
   }

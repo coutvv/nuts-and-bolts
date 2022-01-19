@@ -1,5 +1,8 @@
 package ru.hh.nab.starter;
 
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.Filter;
+import jakarta.servlet.Servlet;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -9,11 +12,12 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.servlet.DispatcherType;
-import javax.servlet.Filter;
-import javax.servlet.Servlet;
+//import javax.servlet.DispatcherType;
+//import javax.servlet.Filter;
+//import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextListener;
+import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.springframework.util.StringUtils;
@@ -168,7 +172,7 @@ public final class NabApplicationBuilder {
 
     private String[] mappings;
     private String filterName;
-    private EnumSet<DispatcherType> dispatcherTypes = EnumSet.allOf(DispatcherType.class);
+    private EnumSet<jakarta.servlet.DispatcherType> dispatcherTypes = EnumSet.allOf(jakarta.servlet.DispatcherType.class);
 
     abstract IMPL self();
 
@@ -182,7 +186,7 @@ public final class NabApplicationBuilder {
       return filterName;
     }
 
-    EnumSet<DispatcherType> getDispatcherTypes() {
+    EnumSet<jakarta.servlet.DispatcherType> getDispatcherTypes() {
       return dispatcherTypes;
     }
 
@@ -219,7 +223,7 @@ public final class NabApplicationBuilder {
     }
   }
 
-  public final class FilterBuilder<F extends Filter> extends ParameterizableFilterBuilder<FilterBuilder<F>> {
+  public final class FilterBuilder<F extends jakarta.servlet.Filter> extends ParameterizableFilterBuilder<FilterBuilder<F>> {
 
     private final Class<F> filterClass;
 
@@ -235,8 +239,10 @@ public final class NabApplicationBuilder {
     @Override
     void registrationAction(ServletContext servletContext, WebApplicationContext webApplicationContext) {
       final String filterName = getFilterName();
+      ContextHandler.Context context = null;
       NabServletContextConfig.registerFilter(
-              servletContext,
+//              servletContext,
+          context,
               !StringUtils.isEmpty(filterName) ? filterName : filterClass.getName(),
               filterClass,
               getInitParameters(),
@@ -246,7 +252,12 @@ public final class NabApplicationBuilder {
     }
   }
 
-  public final class FilterProviderBuilder<F extends Filter> extends AbstractFilterBuilder<FilterProviderBuilder<F>> {
+//  public static <F extends Filter> void registerFilter(ServletContext servletContext, String filterName, Class<F> filterClass,
+//                                                       Map<String, String> initParameters, EnumSet<DispatcherType> dispatcherTypes,
+//                                                       String... mappings) {
+
+
+  public final class FilterProviderBuilder<F extends jakarta.servlet.Filter> extends AbstractFilterBuilder<FilterProviderBuilder<F>> {
 
     private final Function<WebApplicationContext, F> filterProvider;
 
@@ -262,9 +273,12 @@ public final class NabApplicationBuilder {
     @Override
     void registrationAction(ServletContext servletContext, WebApplicationContext webApplicationContext) {
       final String filterName = getFilterName();
+      ContextHandler.Context context = null;
+
       F filter = filterProvider.apply(webApplicationContext);
       NabServletContextConfig.registerFilter(
-              servletContext,
+//              servletContext,
+          context,
               !StringUtils.isEmpty(filterName) ? filterName : filter.getClass().getName(),
               filter,
               getDispatcherTypes(),
@@ -291,8 +305,12 @@ public final class NabApplicationBuilder {
       final String filterName = getFilterName();
       FilterHolder filterHolder = filterHolderProvider.apply(webApplicationContext);
       getInitParameters().forEach(filterHolder::setInitParameter);
+      //5
+      ContextHandler.Context context = null;
+
       NabServletContextConfig.registerFilter(
-              servletContext,
+//              servletContext,
+          context,
               !StringUtils.isEmpty(filterName) ? filterName : filterHolder.getName(),
               filterHolder,
               getDispatcherTypes(),

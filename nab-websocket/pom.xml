@@ -21,7 +21,8 @@
         <dependency>
             <groupId>org.eclipse.jetty.websocket</groupId>
             <artifactId>javax-websocket-server-impl</artifactId>
-            <version>${jetty.version}</version>
+<!--            <version>${jetty.version}</version>-->
+            <version>9.4.44.v20210927</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

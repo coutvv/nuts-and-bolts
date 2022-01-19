@@ -1,5 +1,6 @@
 package ru.hh.nab.starter.server.jetty;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import org.eclipse.jetty.util.Loader;
 import org.eclipse.jetty.util.component.LifeCycle;
@@ -14,20 +15,25 @@ final class JettyWebAppContext extends WebAppContext {
 
   JettyWebAppContext(List<WebAppInitializer> webAppInitializers, boolean sessionEnabled) {
     super(null, null, null, null, null, null, sessionEnabled ? SESSIONS: 0);
-    this.addLifeCycleListener(new BeforeStartListener(webAppInitializers));
+    this.addEventListener(new BeforeStartListener(webAppInitializers));
     setThrowUnavailableOnStartupException(true);
   }
 
   @Override
-  protected void loadConfigurations() throws Exception {
-    if (getConfigurations().length > 0) {
+  protected void loadConfigurations() {
+
+    if (getConfigurations().toArray().length > 0) {
       return;
     }
 
     String[] configurationClassStrings = getConfigurationClasses();
     Configuration[] configurations = new Configuration[configurationClassStrings.length];
     for (int i = 0; i < configurations.length; i++) {
-      configurations[i] = (Configuration)Loader.loadClass(configurationClassStrings[i]).getDeclaredConstructor().newInstance();
+      try {
+        configurations[i] = (Configuration)Loader.loadClass(configurationClassStrings[i]).getDeclaredConstructor().newInstance();
+      } catch (InstantiationException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException | IllegalAccessException e) {
+        e.printStackTrace(); //todo
+      }
     }
     setConfigurations(configurations);
   }

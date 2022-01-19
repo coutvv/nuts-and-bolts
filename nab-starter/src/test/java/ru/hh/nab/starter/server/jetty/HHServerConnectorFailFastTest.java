@@ -1,6 +1,9 @@
 package ru.hh.nab.starter.server.jetty;
 
+import jakarta.servlet.GenericServlet;
+import jakarta.servlet.ServletException;
 import java.io.EOFException;
+import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
@@ -11,7 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import javax.servlet.GenericServlet;
+//import javax.servlet.GenericServlet;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
@@ -144,8 +147,24 @@ public class HHServerConnectorFailFastTest {
       this.responseCode = responseCode;
     }
 
+//    @Override
+//    public void service(ServletRequest req, ServletResponse res) {
+//      try {
+//        proceedLatch.await();
+//      } catch (InterruptedException e) {
+//        Thread.currentThread().interrupt();
+//        throw new RuntimeException(e);
+//      }
+//
+//      ((HttpServletResponse) res).setStatus(responseCode);
+//    }
+
+    void respond() {
+      proceedLatch.countDown();
+    }
+
     @Override
-    public void service(ServletRequest req, ServletResponse res) {
+    public void service(jakarta.servlet.ServletRequest req, jakarta.servlet.ServletResponse res) throws ServletException, IOException {
       try {
         proceedLatch.await();
       } catch (InterruptedException e) {
@@ -154,10 +173,6 @@ public class HHServerConnectorFailFastTest {
       }
 
       ((HttpServletResponse) res).setStatus(responseCode);
-    }
-
-    void respond() {
-      proceedLatch.countDown();
     }
   }
 }

@@ -2,12 +2,12 @@ package ru.hh.nab.starter.server.jetty;
 
 import java.util.Optional;
 import static java.util.Optional.ofNullable;
-import javax.servlet.ServletContext;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.thread.ThreadPool;
@@ -132,10 +132,7 @@ public final class JettyServer {
     httpConfiguration.setRequestHeaderSize(jettySettings.getInteger(REQUEST_HEADER_SIZE, 16384));
     httpConfiguration.setResponseHeaderSize(jettySettings.getInteger(RESPONSE_HEADER_SIZE, 65536));
     httpConfiguration.setSendServerVersion(false);
-    // я не понимаю как таймаут можно заменить на темп.
-    // org.eclipse.jetty.server.HttpConfiguration.setMinResponseDataRate будет отрывать соединение не через 5 секунд, а уже после первой передачи,
-    // если темп в пересчете на секунду окажется меньше, чем указано. какое-то говно
-    httpConfiguration.setBlockingTimeout(5000);
+//todo я так понял автомагически считается https://github.com/eclipse/jetty.project/issues/2525
     return new HttpConnectionFactory(httpConfiguration);
   }
 
@@ -160,7 +157,7 @@ public final class JettyServer {
     return server;
   }
 
-  public ServletContext getServletContext() {
+  public ContextHandler.Context getServletContext() {
     return servletContextHandler != null ? servletContextHandler.getServletContext()
       : handlerCollection.getBean(ServletContextHandler.class).getServletContext();
   }

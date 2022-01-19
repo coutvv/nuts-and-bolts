@@ -11,7 +11,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.UrlPathHelper;
 
-public abstract class SkippableFilter extends OncePerRequestFilter {
+public abstract class SkippableFilter implements jakarta.servlet.Filter {
+//public abstract class SkippableFilter extends OncePerRequestFilter {
   private static final UrlPathHelper urlPathHelper = new UrlPathHelper();
   private String exclusionsString;
 

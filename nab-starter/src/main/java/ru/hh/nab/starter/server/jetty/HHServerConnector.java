@@ -4,14 +4,12 @@ import java.io.IOException;
 import java.nio.channels.SelectableChannel;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Future;
 import org.eclipse.jetty.io.ByteBufferPool;
 import org.eclipse.jetty.io.SelectorManager;
 import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.util.annotation.Name;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.Scheduler;
 import org.slf4j.Logger;
@@ -51,27 +49,6 @@ public final class HHServerConnector extends ServerConnector {
   public HHServerConnector(@Name("server") Server server,
                            TaggedSender statsDSender, @Name("factories") ConnectionFactory... factories) {
     super(server, factories);
-    this.statsDSender = statsDSender;
-  }
-
-  public HHServerConnector(@Name("server") Server server,
-                           @Name("sslContextFactory") SslContextFactory sslContextFactory, TaggedSender statsDSender) {
-    super(server, sslContextFactory);
-    this.statsDSender = statsDSender;
-  }
-
-  public HHServerConnector(@Name("server") Server server,
-                           @Name("acceptors") int acceptors,
-                           @Name("selectors") int selectors,
-                           @Name("sslContextFactory") SslContextFactory sslContextFactory, TaggedSender statsDSender) {
-    super(server, acceptors, selectors, sslContextFactory);
-    this.statsDSender = statsDSender;
-  }
-
-  public HHServerConnector(@Name("server") Server server,
-                           @Name("sslContextFactory") SslContextFactory sslContextFactory,
-                           TaggedSender statsDSender, @Name("factories") ConnectionFactory... factories) {
-    super(server, sslContextFactory, factories);
     this.statsDSender = statsDSender;
   }
 
@@ -118,7 +95,7 @@ public final class HHServerConnector extends ServerConnector {
   }
 
   @Override
-  public Future<Void> shutdown() {
+  public CompletableFuture<Void> shutdown() {
     super.shutdown();
 
     CompletableFuture<Void> shutdownFuture = new CompletableFuture<>();

@@ -1,6 +1,10 @@
 package ru.hh.nab.starter.server.jetty;
 
+import jakarta.servlet.GenericServlet;
+import jakarta.servlet.Servlet;
+import jakarta.servlet.ServletException;
 import java.io.EOFException;
+import java.io.IOException;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.util.ArrayDeque;
@@ -13,8 +17,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import javax.servlet.GenericServlet;
-import javax.servlet.Servlet;
+//import javax.servlet.GenericServlet;
+//import javax.servlet.Servlet;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
@@ -119,8 +123,30 @@ public class HHServerConnectorGracefulTest {
       this.responseCode = responseCode;
     }
 
+//    @Override
+//    public void service(ServletRequest req, ServletResponse res) {
+//      CountDownLatch latch = new CountDownLatch(1);
+//      arrivedRequests.add(latch);
+//      try {
+//        latch.await();
+//      } catch (InterruptedException e) {
+//        Thread.currentThread().interrupt();
+//        throw new RuntimeException(e);
+//      }
+//      ((HttpServletResponse) res).setStatus(responseCode);
+//    }
+
+    ControlledServlet awaitRequest() throws InterruptedException {
+      readyToProceedRequests.add(arrivedRequests.take());
+      return this;
+    }
+
+    void respond() {
+      readyToProceedRequests.remove().countDown();
+    }
+
     @Override
-    public void service(ServletRequest req, ServletResponse res) {
+    public void service(jakarta.servlet.ServletRequest req, jakarta.servlet.ServletResponse res) throws ServletException, IOException {
       CountDownLatch latch = new CountDownLatch(1);
       arrivedRequests.add(latch);
       try {
@@ -130,15 +156,6 @@ public class HHServerConnectorGracefulTest {
         throw new RuntimeException(e);
       }
       ((HttpServletResponse) res).setStatus(responseCode);
-    }
-
-    ControlledServlet awaitRequest() throws InterruptedException {
-      readyToProceedRequests.add(arrivedRequests.take());
-      return this;
-    }
-
-    void respond() {
-      readyToProceedRequests.remove().countDown();
     }
   }
 
