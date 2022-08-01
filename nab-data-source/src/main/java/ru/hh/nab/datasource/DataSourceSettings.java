@@ -15,6 +15,12 @@ public final class DataSourceSettings {
   public static final String MONITORING_LONG_CONNECTION_USAGE_MS = "monitoring.longConnectionUsageMs";
   public static final String MONITORING_SEND_SAMPLED_STATS = "monitoring.sendSampledStats";
 
+  public static final String HEALTHCHECK_SETTINGS_PREFIX = "healthcheck";
+  public static final String HEALTHCHECK_ENABLED = "enabled";
+  public static final String HEALTHCHECK_DELAY = "delayMs";
+
+  public static final String ROUTING_SECONDARY_DATASOURCE = "routing.failedHealthcheck.secondaryDataSource";
+
   private DataSourceSettings() {
   }
 }
