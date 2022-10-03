@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ru.hh.public-pom</groupId>
@@ -10,7 +11,7 @@
     <groupId>ru.hh.nab</groupId>
     <artifactId>nuts-and-bolts-parent</artifactId>
     <packaging>pom</packaging>
-    <version>4.34.19-beta-config-split-SNAPSHOT</version>
+    <version>4.36.0-beta-config-split-SNAPSHOT</version>
 
     <name>nuts'n'bolts parent module</name>
 
@@ -34,7 +35,7 @@
     <properties>
         <jclient.version>3.9.7</jclient.version>
         <java.version>11</java.version>
-        <consul.client.version>1.2.11</consul.client.version>
+        <consul.client.version>1.2.12</consul.client.version>
     </properties>
 
     <dependencyManagement>
@@ -206,6 +207,6 @@
     <scm>
         <connection>scm:git:git@github.com:hhru/nuts-and-bolts.git</connection>
         <developerConnection>scm:git:git@github.com:hhru/nuts-and-bolts.git</developerConnection>
-        <tag>nuts-and-bolts-parent-4.34.18-beta-config-split</tag>
+        <tag>HEAD</tag>
     </scm>
 </project>
