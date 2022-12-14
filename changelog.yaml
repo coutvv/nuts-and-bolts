@@ -1,3 +1,42 @@
+-   name: 4.36.6
+    date: '2022-12-14T16:20:02.308311+03:00'
+    description: Обновление jclient до 3.9.11
+    instructions: ''
+    compatible: true
+
+-   name: 4.36.5
+    date: '2022-12-14T10:17:19.677881+03:00'
+    description: Обновление jclient до 3.9.10
+    instructions: ''
+    compatible: true
+
+-   name: 4.36.4
+    date: '2022-11-21T16:48:00.485040+03:00'
+    description: Поднята версия дефолтного образа тестконтейнера Redis до 6.2.3. Поле
+        REDIS_IMAGE_ENV_VARIABLE, по значению которого можно подтягивать версию образа
+        Redis из переменных окружения, сделано публичным.
+    instructions: ''
+    compatible: true
+
+-   name: 4.36.3
+    date: '2022-11-16T14:41:38.679710+03:00'
+    description: Добавлен testcontainer Redis
+    instructions: ''
+    compatible: true
+
+-   name: 4.36.2
+    date: '2022-10-12T13:15:00.333439+03:00'
+    description: Обновление public-pom до 1.52.3
+    instructions: ''
+    compatible: true
+
+-   name: 4.36.1
+    date: '2022-10-10T20:14:57.205411+03:00'
+    description: '- fix sentry configuration so it reads sentry.properties'
+    instructions: Нужно в файле sentry.properties поменять "stacktrace.app.packages"
+        на "in-app-includes"
+    compatible: false
+
 -   name: 4.36.0
     date: '2022-09-09T16:19:02.683653+03:00'
     description: Убран master как выбор по-умолчанию для RoutingDataSource, при попытке
