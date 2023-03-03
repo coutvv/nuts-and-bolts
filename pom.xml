@@ -4,13 +4,13 @@
     <parent>
         <groupId>ru.hh.public-pom</groupId>
         <artifactId>public-pom</artifactId>
-        <version>1.52.3</version>
+        <version>1.52.4</version>
     </parent>
 
     <groupId>ru.hh.nab</groupId>
     <artifactId>nuts-and-bolts-parent</artifactId>
     <packaging>pom</packaging>
-    <version>4.36.7-beta-config-split-SNAPSHOT</version>
+    <version>4.37.1-beta-config-split-SNAPSHOT</version>
 
     <name>nuts'n'bolts parent module</name>
 
@@ -139,6 +139,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+            <!-- need only for test purposes -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
