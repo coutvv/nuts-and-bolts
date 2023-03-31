@@ -1,9 +1,13 @@
 package ru.hh.nab.starter;
 
 import io.sentry.Sentry;
+import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.lang.management.ManagementFactory;
 import static java.text.MessageFormat.format;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
@@ -19,12 +23,16 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.springframework.web.context.ContextLoader;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import ru.hh.nab.common.properties.FileSettings;
+import static ru.hh.nab.common.properties.PropertiesUtils.SETINGS_DIR_PROPERTY;
+import static ru.hh.nab.common.properties.PropertiesUtils.fromFilesInSettingsDir;
 import static ru.hh.nab.common.qualifier.NamedQualifier.SERVICE_NAME;
 import ru.hh.nab.metrics.StatsDSender;
 import ru.hh.nab.metrics.Tag;
@@ -56,6 +64,7 @@ public final class NabApplication {
     AnnotationConfigWebApplicationContext aggregateCtx = new AnnotationConfigWebApplicationContext();
     try {
       aggregateCtx.register(configs);
+      configureEnvironment(aggregateCtx);
       aggregateCtx.refresh();
       return run(aggregateCtx);
     } catch (Exception e) {
@@ -131,6 +140,23 @@ public final class NabApplication {
         options.setDsn(dsn);
       });
     }
+  }
+
+  private static void configureEnvironment(ApplicationContext context) {
+    ConfigurableEnvironment environment = (ConfigurableEnvironment) context.getEnvironment();
+    File settingsDir = new File(System.getProperty(SETINGS_DIR_PROPERTY, "."));
+    Optional.ofNullable(settingsDir.listFiles())
+        .stream()
+        .flatMap(Arrays::stream)
+        .filter(File::isFile)
+        .forEach(file -> {
+          try {
+            Properties properties = fromFilesInSettingsDir(file.getName());
+            environment.getPropertySources().addLast(new PropertiesPropertySource(file.getName(), properties));
+          } catch (IOException e) {
+            throw new UncheckedIOException(e);
+          }
+        });
   }
 
   private static void configureLogger(ApplicationContext context) {
