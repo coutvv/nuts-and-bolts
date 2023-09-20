@@ -3,15 +3,15 @@ package ru.hh.nab.hibernate;
 import com.codahale.metrics.health.HealthCheck;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.persistence.PersistenceException;
 import java.sql.SQLException;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.function.Supplier;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.persistence.PersistenceException;
 import javax.sql.DataSource;
 import org.hibernate.Session;
 import org.junit.jupiter.api.AfterAll;
@@ -201,7 +201,7 @@ public class DataSourceSwitchingTest extends HibernateTestBase {
   public void testSwitchingIfSecondaryDataSourceIsNotPresentOnDb1() throws Exception {
     doThrow(UnhealthyDataSourceException.class).when(db1SlowDataSource).getConnection();
     Exception ex = invokeMethodOnDataSourceWithException(DataSourceType.SLOW);
-    assertTrue(ex.getCause().getCause() instanceof UnhealthyDataSourceException);
+    assertTrue(ex.getCause() instanceof UnhealthyDataSourceException);
 
     verify(db1MasterDataSource, never()).getConnection();
     verify(db1ReadOnlyDataSource, never()).getConnection();
@@ -220,7 +220,7 @@ public class DataSourceSwitchingTest extends HibernateTestBase {
 
     doThrow(UnhealthyDataSourceException.class).when(db2SlowDataSource).getConnection();
     Exception ex = invokeMethodOnDataSourceWithException(DataSourceType.SLOW);
-    assertTrue(ex.getCause().getCause() instanceof UnhealthyDataSourceException);
+    assertTrue(ex.getCause() instanceof UnhealthyDataSourceException);
 
     verify(db1MasterDataSource, never()).getConnection();
     verify(db1ReadOnlyDataSource, never()).getConnection();
