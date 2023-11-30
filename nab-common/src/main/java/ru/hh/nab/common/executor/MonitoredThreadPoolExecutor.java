@@ -31,7 +31,9 @@ public class MonitoredThreadPoolExecutor extends ThreadPoolExecutor {
   private final Max activeCountMetric = new Max(0);
   private final Max queueSizeMetric = new Max(0);
   private final Histogram taskDurationMetric = new SimpleHistogram(500);
+  private final Histogram taskExecutionStartLagMetric = new SimpleHistogram(500);
   private final ThreadLocal<Long> taskStart = new ThreadLocal<>();
+  private final ThreadLocal<Long> taskSchedule = new ThreadLocal<>();
   private final String threadPoolName;
   private final Integer longTaskDurationMs;
 
@@ -49,12 +51,20 @@ public class MonitoredThreadPoolExecutor extends ThreadPoolExecutor {
   }
 
   @Override
+  public void execute(Runnable command) {
+    taskSchedule.set(System.currentTimeMillis());
+    super.execute(command);
+  }
+
+  @Override
   protected void beforeExecute(Thread t, Runnable r) {
     maxPoolSizeMetric.save(getMaximumPoolSize());
     poolSizeMetric.save(getPoolSize());
     activeCountMetric.save(getActiveCount());
     queueSizeMetric.save(getQueue().size());
 
+    int taskExecutionStartLag = (int) (System.currentTimeMillis() - taskSchedule.get());
+    taskExecutionStartLagMetric.save(taskExecutionStartLag);
     taskStart.set(System.currentTimeMillis());
   }
 
@@ -102,6 +112,7 @@ public class MonitoredThreadPoolExecutor extends ThreadPoolExecutor {
     String activeCountMetricName = "threadPool.activeCount";
     String queueSizeMetricName = "threadPool.queueSize";
     String taskDurationMetricName = "threadPool.taskDuration";
+    String taskExecutionStartLagMetricName = "threadPool.taskExecutionStartLag";
     var sender = new TaggedSender(statsDSender, Set.of(new Tag(Tag.APP_TAG_NAME, serviceName), new Tag("pool", threadPoolName)));
 
     statsDSender.sendPeriodically(() -> {
@@ -110,6 +121,7 @@ public class MonitoredThreadPoolExecutor extends ThreadPoolExecutor {
       sender.sendMax(activeCountMetricName, threadPoolExecutor.activeCountMetric);
       sender.sendMax(queueSizeMetricName, threadPoolExecutor.queueSizeMetric);
       sender.sendHistogram(taskDurationMetricName, threadPoolExecutor.taskDurationMetric, DEFAULT_PERCENTILES);
+      sender.sendHistogram(taskExecutionStartLagMetricName, threadPoolExecutor.taskExecutionStartLagMetric, DEFAULT_PERCENTILES);
     });
 
     threadPoolExecutor.prestartAllCoreThreads();
