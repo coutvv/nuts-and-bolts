@@ -299,11 +299,10 @@ public class DataSourceSwitchingTest extends HibernateTestBase {
       Session currentSession = sessionFactory.getCurrentSession();
       return currentSession.find(TestEntity.class, 1);
     };
-    PersistenceException ex = assertThrows(
+    return assertThrows(
         PersistenceException.class,
         () -> onDataSource(dataSource, () -> transactionalScope.read(method))
     );
-    return ex;
   }
 
   @Configuration

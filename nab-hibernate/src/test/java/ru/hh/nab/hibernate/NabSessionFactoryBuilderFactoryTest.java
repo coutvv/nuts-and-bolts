@@ -97,13 +97,12 @@ public class NabSessionFactoryBuilderFactoryTest {
   static class TestContext {
     @Bean
     DataSource dataSource() {
-      DataSource hikariDataSource = new HikariDataSource() {
+      return new HikariDataSource() {
         @Override
         public Connection getConnection() throws SQLException {
           return connection;
         }
       };
-      return hikariDataSource;
     }
 
     @Bean
