@@ -20,8 +20,8 @@ public class ThreadDiagnosticRejectedExecutionHandler implements RejectedExecuti
   @Override
   public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
     String threadPoolPhrase;
-    if (executor instanceof MonitoredThreadPoolExecutor) {
-      threadPoolPhrase = ((MonitoredThreadPoolExecutor) executor).getThreadPoolName() + " thread pool";
+    if (executor instanceof MonitoredThreadPoolExecutor poolExecutor) {
+      threadPoolPhrase = poolExecutor.getThreadPoolName() + " thread pool";
     } else {
       threadPoolPhrase = "Thread pool";
     }

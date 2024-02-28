@@ -85,11 +85,11 @@ public class LogLevelOverrideApplier {
       throw new RuntimeException("Interrupted while waiting for completable future to complete", e);
     } catch (ExecutionException e) {
       Throwable cause = e.getCause();
-      if (cause instanceof SkipLogLevelOverrideException) {
-        throw (SkipLogLevelOverrideException) cause;
+      if (cause instanceof SkipLogLevelOverrideException exception) {
+        throw exception;
       }
-      if (cause instanceof RuntimeException) {
-        throw (RuntimeException) cause;
+      if (cause instanceof RuntimeException exception) {
+        throw exception;
       }
       throw new RuntimeException("Completable future completed exceptionally", cause);
     }

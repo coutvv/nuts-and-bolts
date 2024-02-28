@@ -142,8 +142,8 @@ public final class JettyServer {
   private Optional<ServerConnector> getServerConnector() {
     Connector[] connectors = server.getConnectors();
     for (Connector connector : connectors) {
-      if (connector instanceof ServerConnector) {
-        return Optional.of((ServerConnector) connector);
+      if (connector instanceof ServerConnector serverConnector) {
+        return Optional.of(serverConnector);
       }
     }
     return Optional.empty();

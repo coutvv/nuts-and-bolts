@@ -130,8 +130,7 @@ public final class HHServerConnector extends ServerConnector {
     @Override
     public void accept(SelectableChannel channel) {
       Executor executor = getExecutor();
-      if (executor instanceof QueuedThreadPool) {
-        QueuedThreadPool queuedThreadPool = (QueuedThreadPool) executor;
+      if (executor instanceof QueuedThreadPool queuedThreadPool) {
         if (queuedThreadPool.isLowOnThreads()) {
           statsDSender.sendCount(LOW_ON_THREADS_METRIC_NAME, 1);
           logger.warn("low on threads, closing accepted socket");

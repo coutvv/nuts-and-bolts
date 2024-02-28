@@ -21,8 +21,8 @@ public abstract class UnwrappingExceptionMapper<T extends Exception> implements 
         return mapper.toResponse(cause);
       }
 
-      if (cause instanceof WebApplicationException) {
-        return ((WebApplicationException) cause).getResponse();
+      if (cause instanceof WebApplicationException applicationException) {
+        return applicationException.getResponse();
       }
     }
 

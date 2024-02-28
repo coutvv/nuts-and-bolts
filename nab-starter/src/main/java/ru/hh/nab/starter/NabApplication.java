@@ -194,8 +194,8 @@ public final class NabApplication {
         public void contextDestroyed(ServletContextEvent event) {
           super.contextDestroyed(event);
           servletContextConfig.getListeners(targetCtx).forEach(listener -> listener.contextDestroyed(event));
-          if (baseCtx instanceof ConfigurableApplicationContext) {
-            ((ConfigurableApplicationContext) baseCtx).close();
+          if (baseCtx instanceof ConfigurableApplicationContext context) {
+            context.close();
           }
         }
       });
