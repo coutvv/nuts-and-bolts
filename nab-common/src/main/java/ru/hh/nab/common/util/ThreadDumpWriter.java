@@ -44,7 +44,7 @@ public class ThreadDumpWriter {
       threadDump.append(threadInfo.toString());
     }
     String threadDumpString = "Thread dump:\n" + threadDump.toString();
-    final Matcher matcher = logLinesPattern.matcher(threadDumpString);
+    Matcher matcher = logLinesPattern.matcher(threadDumpString);
     int tailIndex = 0;
     while (matcher.find()) {
       LOGGER.warn(matcher.group(0));

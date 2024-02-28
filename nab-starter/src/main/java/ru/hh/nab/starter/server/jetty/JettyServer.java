@@ -126,7 +126,7 @@ public final class JettyServer {
   }
 
   private static HttpConnectionFactory createHttpConnectionFactory(FileSettings jettySettings) {
-    final HttpConfiguration httpConfiguration = new HttpConfiguration();
+    HttpConfiguration httpConfiguration = new HttpConfiguration();
     httpConfiguration.setSecurePort(jettySettings.getInteger(SECURE_PORT, 8443));
     httpConfiguration.setOutputBufferSize(jettySettings.getInteger(OUTPUT_BUFFER_SIZE, 65536));
     httpConfiguration.setRequestHeaderSize(jettySettings.getInteger(REQUEST_HEADER_SIZE, 16384));

@@ -34,7 +34,7 @@ public final class UriCompactionUtil {
           StringJoiner joiner = new StringJoiner(SLASH_STR, SLASH_STR, "");
           int startIndex = 0;
           do {
-            final int endIndex = path.indexOf(SLASH, startIndex);
+            int endIndex = path.indexOf(SLASH, startIndex);
             if (endIndex == -1) {
               joiner.add(compactPathPart(path.substring(startIndex), minCompactingLength, minPossibleHashLength, replacement));
             } else if (endIndex > startIndex) {

@@ -115,12 +115,12 @@ public class NabMetricsTrackerFactory implements MetricsTrackerFactory {
     }
 
     @Override
-    public void recordConnectionAcquiredNanos(final long elapsedAcquiredNanos) {
+    public void recordConnectionAcquiredNanos(long elapsedAcquiredNanos) {
       acquisitionHistogram.save((int) TimeUnit.NANOSECONDS.toMillis(elapsedAcquiredNanos));
     }
 
     @Override
-    public void recordConnectionUsageMillis(final long elapsedBorrowedMillis) {
+    public void recordConnectionUsageMillis(long elapsedBorrowedMillis) {
       int connectionUsageMs = (int) elapsedBorrowedMillis;
 
       if (longConnectionUsageMs != null && connectionUsageMs >= longConnectionUsageMs) {

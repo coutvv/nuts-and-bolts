@@ -18,7 +18,7 @@ public class RequestIdLoggingFilterTest {
 
   @Test
   public void testRequestId() {
-    final String testRequestId = "123";
+    String testRequestId = "123";
 
     Response response = resourceHelper
         .createRequest("/status")

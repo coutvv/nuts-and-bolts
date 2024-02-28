@@ -25,7 +25,7 @@ public class RequestScopeTest {
 
   @Test
   public void requestScopeTest() {
-    final String name = requestProvider.get().getField();
+    String name = requestProvider.get().getField();
     Response response = resourceHelper
         .target("/hello")
         .queryParam("name", name)

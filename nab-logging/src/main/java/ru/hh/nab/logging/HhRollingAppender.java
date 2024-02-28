@@ -149,7 +149,7 @@ public class HhRollingAppender extends RollingFileAppender<ILoggingEvent> {
   }
 
   private int calcParameter(Integer parameter, String propName, int defaultValue) {
-    final String propValue = context.getProperty(propName);
+    String propValue = context.getProperty(propName);
     if (parameter != null) {
       return parameter;
     } else if (!StringUtils.isBlank(propValue)) {
@@ -160,7 +160,7 @@ public class HhRollingAppender extends RollingFileAppender<ILoggingEvent> {
   }
 
   private boolean calcParameter(Boolean parameter, String propName, boolean defaultValue) {
-    final String propValue = context.getProperty(propName);
+    String propValue = context.getProperty(propName);
     if (parameter != null) {
       return parameter;
     } else if (!StringUtils.isBlank(propValue)) {
@@ -186,8 +186,8 @@ public class HhRollingAppender extends RollingFileAppender<ILoggingEvent> {
     boolean immediateFlush = calcParameter(null, "log.immediate.flush", DEFAULT_IMMEDIATE_FLUSH);
     setImmediateFlush(immediateFlush);
 
-    final String propPattern = context.getProperty("log.pattern");
-    final String propPackagingInfo = context.getProperty("log.collect.packaging.info");
+    String propPattern = context.getProperty("log.pattern");
+    String propPackagingInfo = context.getProperty("log.collect.packaging.info");
 
     int initialRollMaxSeconds = calcParameter(null, "log.roll.initial.delay.max", DEFAULT_MAX_INITIAL_ROLL_DELAY_SECONDS);
     int nextLogRollMaxSeconds = calcParameter(null, "log.roll.next.delay.max", DEFAULT_MAX_NEXT_ROLL_DELAY_SECONDS);
@@ -227,7 +227,7 @@ public class HhRollingAppender extends RollingFileAppender<ILoggingEvent> {
     if (getRollingPolicy() == null) {
       FixedWindowRollingPolicy rolling = new FixedWindowRollingPolicy();
       rolling.setContext(context);
-      final String fileNameEnding;
+      String fileNameEnding;
       if (compress) {
         fileNameEnding = ".%i.gz";
       } else {

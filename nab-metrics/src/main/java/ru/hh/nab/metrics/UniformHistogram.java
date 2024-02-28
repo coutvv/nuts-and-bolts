@@ -22,11 +22,11 @@ public class UniformHistogram {
   }
 
   public void save(long value) {
-    final long c = count.incrementAndGet();
+    long c = count.incrementAndGet();
     if (c <= values.length()) {
       values.set((int) c - 1, value);
     } else {
-      final long r = ThreadLocalRandom.current().nextLong(c);
+      long r = ThreadLocalRandom.current().nextLong(c);
       if (r < values.length()) {
         values.set((int) r, value);
       }

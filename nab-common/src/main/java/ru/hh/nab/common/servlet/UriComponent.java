@@ -23,7 +23,7 @@ public final class UriComponent {
 
     int startIndex = 0;
     do {
-      final int endIndex = queryString.indexOf('&', startIndex);
+      int endIndex = queryString.indexOf('&', startIndex);
       if (endIndex == -1) {
         parseKVDecodeIfNeededAddToResult(result, queryString.substring(startIndex), decodeNames, decodeValues);
       } else if (endIndex > startIndex) {

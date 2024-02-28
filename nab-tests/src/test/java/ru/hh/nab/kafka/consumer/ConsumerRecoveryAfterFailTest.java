@@ -283,7 +283,7 @@ public class ConsumerRecoveryAfterFailTest extends KafkaConsumerTestbase {
     int originalNumberOfPublishedMessages = 117;
     int batchSize = 100;
     putMessagesIntoKafka(originalNumberOfPublishedMessages);
-    final List<ConsumerRecord<String, String>> consumedRecords = Collections.synchronizedList(new ArrayList<>());
+    List<ConsumerRecord<String, String>> consumedRecords = Collections.synchronizedList(new ArrayList<>());
     startConsumer((messages, ack) -> {
       messages.forEach(m -> {
         consumedRecords.add(m);

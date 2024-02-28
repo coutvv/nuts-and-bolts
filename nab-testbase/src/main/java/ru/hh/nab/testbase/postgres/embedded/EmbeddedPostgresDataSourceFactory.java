@@ -49,7 +49,7 @@ public class EmbeddedPostgresDataSourceFactory extends DataSourceFactory {
     Properties properties = dataSourceSettings.getProperties();
 
     PostgreSQLContainer<?> embeddedPostgres = getEmbeddedPostgres();
-    final StringSubstitutor jdbcUrlParamsSubstitutor = new StringSubstitutor(Map.of(
+    StringSubstitutor jdbcUrlParamsSubstitutor = new StringSubstitutor(Map.of(
         "port", embeddedPostgres.getFirstMappedPort(),
         "host", embeddedPostgres.getHost(),
         "database", DEFAULT_DATABASE

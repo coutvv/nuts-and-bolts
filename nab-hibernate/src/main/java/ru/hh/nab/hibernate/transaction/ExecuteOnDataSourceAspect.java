@@ -24,7 +24,7 @@ public class ExecuteOnDataSourceAspect {
   }
 
   @Around(value = "@annotation(executeOnDataSource)", argNames = "pjp,executeOnDataSource")
-  public Object executeOnSpecialDataSource(final ProceedingJoinPoint pjp, final ExecuteOnDataSource executeOnDataSource) throws Throwable {
+  public Object executeOnSpecialDataSource(ProceedingJoinPoint pjp, ExecuteOnDataSource executeOnDataSource) throws Throwable {
     String dataSourceType = executeOnDataSource.dataSourceType();
     if (DataSourceContextUnsafe.isCurrentDataSource(dataSourceType) && TransactionSynchronizationManager.isSynchronizationActive()) {
       return pjp.proceed();

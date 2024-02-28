@@ -13,7 +13,7 @@ public final class SqlRequestIdCommenter {
 
   private SqlRequestIdCommenter() {}
 
-  public static String addRequestIdComment(final String sql) {
+  public static String addRequestIdComment(String sql) {
     return MDC
         .getRequestId()
         .map(requestId -> {

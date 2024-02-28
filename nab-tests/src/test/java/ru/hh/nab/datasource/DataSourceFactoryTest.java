@@ -146,7 +146,7 @@ public class DataSourceFactoryTest {
   private static Properties createIncompleteTestProperties() {
     Properties properties = new Properties();
 
-    final StringSubstitutor jdbcUrlParamsSubstitutor = new StringSubstitutor(Map.of(
+    StringSubstitutor jdbcUrlParamsSubstitutor = new StringSubstitutor(Map.of(
         "port", testDbContainer.getFirstMappedPort(),
         "host", testDbContainer.getHost(),
         "database", EmbeddedPostgresDataSourceFactory.DEFAULT_DATABASE

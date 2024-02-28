@@ -16,15 +16,15 @@ public class PropertiesUtils {
   }
 
   public static Properties fromFilesInSettingsDir(String fileName, String devFileName) throws IOException {
-    final String settingsDir = System.getProperty(SETINGS_DIR_PROPERTY, ".");
-    final Properties properties = new Properties();
+    String settingsDir = System.getProperty(SETINGS_DIR_PROPERTY, ".");
+    Properties properties = new Properties();
 
-    final Path defaultPath = Paths.get(settingsDir, fileName);
+    Path defaultPath = Paths.get(settingsDir, fileName);
     try (InputStream inputStream = Files.newInputStream(defaultPath)) {
       properties.load(inputStream);
     }
 
-    final Path customPath = Paths.get(settingsDir, devFileName);
+    Path customPath = Paths.get(settingsDir, devFileName);
     if (Files.isReadable(customPath)) {
       try (InputStream inputStream = Files.newInputStream(customPath)) {
         properties.load(inputStream);
@@ -34,7 +34,7 @@ public class PropertiesUtils {
     return properties;
   }
 
-  public static void setSystemPropertyIfAbsent(final String name, final String value) {
+  public static void setSystemPropertyIfAbsent(String name, String value) {
     if (System.getProperty(name) == null) {
       System.setProperty(name, value);
     }

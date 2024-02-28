@@ -14,7 +14,7 @@ import static org.springframework.util.Assert.hasLength;
 public class FileSettings {
   private final Properties properties;
 
-  public FileSettings(final Properties properties) {
+  public FileSettings(Properties properties) {
     this.properties = properties;
   }
 
@@ -34,19 +34,19 @@ public class FileSettings {
     return parseValueOrDefault(key, Integer::parseInt, null);
   }
 
-  public long getLong(final String key, long defaultValue) {
+  public long getLong(String key, long defaultValue) {
     return parseValueOrDefault(key, Long::parseLong, defaultValue);
   }
 
-  public Long getLong(final String key) {
+  public Long getLong(String key) {
     return parseValueOrDefault(key, Long::parseLong, null);
   }
 
-  public double getDouble(final String key, double defaultValue) {
+  public double getDouble(String key, double defaultValue) {
     return parseValueOrDefault(key, Double::parseDouble, defaultValue);
   }
 
-  public Double getDouble(final String key) {
+  public Double getDouble(String key) {
     return parseValueOrDefault(key, Double::parseDouble, null);
   }
 
@@ -60,7 +60,7 @@ public class FileSettings {
 
   public Properties getSubProperties(String prefix) {
     hasLength(prefix, "prefix should not be null or empty");
-    final Properties subProperties = new Properties();
+    Properties subProperties = new Properties();
     properties
         .stringPropertyNames()
         .stream()
@@ -103,7 +103,7 @@ public class FileSettings {
   }
 
   public String getNotEmptyOrThrow(String propertyKey) {
-    final String property = getString(propertyKey);
+    String property = getString(propertyKey);
     if (property == null || property.isEmpty()) {
       throw new IllegalStateException(propertyKey + " in configuration must not be empty");
     }

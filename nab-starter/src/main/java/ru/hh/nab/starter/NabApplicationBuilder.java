@@ -234,7 +234,7 @@ public final class NabApplicationBuilder {
 
     @Override
     void registrationAction(ServletContext servletContext, WebApplicationContext webApplicationContext) {
-      final String filterName = getFilterName();
+      String filterName = getFilterName();
       NabServletContextConfig.registerFilter(
               servletContext,
               StringUtils.hasLength(filterName) ? filterName : filterClass.getName(),
@@ -261,7 +261,7 @@ public final class NabApplicationBuilder {
 
     @Override
     void registrationAction(ServletContext servletContext, WebApplicationContext webApplicationContext) {
-      final String filterName = getFilterName();
+      String filterName = getFilterName();
       F filter = filterProvider.apply(webApplicationContext);
       NabServletContextConfig.registerFilter(
               servletContext,
@@ -288,7 +288,7 @@ public final class NabApplicationBuilder {
 
     @Override
     void registrationAction(ServletContext servletContext, WebApplicationContext webApplicationContext) {
-      final String filterName = getFilterName();
+      String filterName = getFilterName();
       FilterHolder filterHolder = filterHolderProvider.apply(webApplicationContext);
       getInitParameters().forEach(filterHolder::setInitParameter);
       NabServletContextConfig.registerFilter(
