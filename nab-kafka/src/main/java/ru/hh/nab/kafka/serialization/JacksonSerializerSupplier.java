@@ -13,6 +13,7 @@ public class JacksonSerializerSupplier implements SerializerSupplier {
     this.objectMapper = objectMapper;
   }
 
+  @Override
   public <T> Serializer<T> supply() {
     JsonSerializer<T> serializer = new JsonSerializer<>(objectMapper);
     serializer.setAddTypeInfo(false);

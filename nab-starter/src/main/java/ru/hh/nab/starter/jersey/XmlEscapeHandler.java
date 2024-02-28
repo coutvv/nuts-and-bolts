@@ -13,6 +13,7 @@ public class XmlEscapeHandler implements CharacterEscapeHandler {
 
   private XmlEscapeHandler() {}
 
+  @Override
   public void escape(char[] ch, int start, int length, boolean isAttVal, Writer out) throws IOException {
     int limit = start + length;
     for (int i = start; i < limit; i++) {
