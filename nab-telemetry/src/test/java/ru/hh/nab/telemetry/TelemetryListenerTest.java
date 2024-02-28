@@ -138,7 +138,7 @@ public class TelemetryListenerTest {
     assertEquals(3, spans.size());
     assertEquals(1, spans.stream().filter(data -> "parent".equals(data.getName())).count());
 
-    List<SpanData> clientSpans = spans.stream().filter(data -> SpanKind.CLIENT.equals(data.getKind())).collect(Collectors.toList());
+    List<SpanData> clientSpans = spans.stream().filter(data -> SpanKind.CLIENT == data.getKind()).collect(Collectors.toList());
     assertEquals(2, clientSpans.stream().filter(data -> parentSpan.getSpanContext().getSpanId().equals(data.getParentSpanId())).count());
   }
 
