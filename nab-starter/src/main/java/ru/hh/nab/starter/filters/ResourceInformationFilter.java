@@ -12,26 +12,36 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.container.ResourceInfo;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import org.glassfish.jersey.server.ExtendedUriInfo;
 import org.glassfish.jersey.uri.UriTemplate;
+import org.springframework.context.ApplicationContext;
 import org.springframework.util.ClassUtils;
 import static ru.hh.nab.common.constants.RequestAttributes.CODE_FUNCTION;
 import static ru.hh.nab.common.constants.RequestAttributes.CODE_NAMESPACE;
 import static ru.hh.nab.common.constants.RequestAttributes.HTTP_ROUTE;
 import ru.hh.nab.common.mdc.MDC;
 import static ru.hh.nab.common.mdc.MDC.CONTROLLER_MDC_KEY;
+import ru.hh.nab.common.properties.FileSettings;
 import ru.hh.nab.starter.jersey.NabPriorities;
 
 @Priority(NabPriorities.OBSERVABILITY)
 public class ResourceInformationFilter implements ContainerRequestFilter, ContainerResponseFilter {
   private static final String SLASH = "/";
-  @Inject
+  @Context
   private ResourceInfo resourceInfo;
+  @Inject
+  private ApplicationContext context;
+  @Context
+  private FileSettings settings;
+
 
   @Override
   public void filter(ContainerRequestContext requestContext) {
+    context.getApplicationName();
+    settings.getProperties();
     Class<?> controllerClass = ClassUtils.getUserClass(resourceInfo.getResourceClass());
     String resourceMethodName = resourceInfo.getResourceMethod().getName();
     String controller = controllerClass.getSimpleName() + '#' + resourceMethodName;
